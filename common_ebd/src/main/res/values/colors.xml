@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="editTextColor">#F7F7F7</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="btnUnEnableColor">#7FCCA1</color>
+    <color name="btnEnableColor">#009944</color>
+    <color name="live_green">#009944</color>
+    <color name="live_red">#ff5b53</color>
+    <color name="color999">#999999</color>
+    <color name="colorf5">#F5F5F5</color>
+    <color name="skeleton">#ffeeeeee</color>
+    <color name="color222">#222222</color>
+    <color name="color666">#666666</color>
+    <color name="colorGray">#fff7f7f7</color>
+    <color name="colorF5">#fff5f5f5</color>
+    <color name="colorEE">#ffeeeeee</color>
+    <color name="colorCC">#ffcccccc</color>
+    <color name="color_phone">#2CBDA4</color>
+    <color name="color_orange">#FDAB2F</color>
+</resources>
