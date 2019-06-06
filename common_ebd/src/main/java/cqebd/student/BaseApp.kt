@@ -13,6 +13,7 @@ import com.jeremyliao.liveeventbus.LiveEventBus
 import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
+import cqebd.student.di.DaggerAppComponent
 import cqebd.student.service.ClassService
 import org.jetbrains.anko.toast
 import xiaofu.lib.base.BuildConfig
@@ -46,8 +47,8 @@ class BaseApp : Application() {
         super.onCreate()
         instance = this
 
-//        DaggerAppComponent.builder().application(this)
-//                .build().inject(this)
+        DaggerAppComponent.builder().application(this)
+                .build().inject(this)
 
 //        if (LeakCanary.isInAnalyzerProcess(this))
 //            return

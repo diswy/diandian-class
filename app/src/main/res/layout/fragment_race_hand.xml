@@ -4,13 +4,16 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	tools:context="com.cqebd.live.ui.RaceHandActivity">
+	android:background="@color/white"
+	tools:context="com.cqebd.live.ui.RaceHandActivity"
+	tools:ignore="PxUsage,HardcodedText">
 
 	<ImageView
 		android:id="@+id/student_responder_img"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="257px"
+		android:contentDescription="@string/img"
 		android:src="@drawable/ic_student_responder"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"

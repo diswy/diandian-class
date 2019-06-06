@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="cqebd.student.vo">
+	package="cqebd.student.vo">
 
-    <application>
-        <service
-                android:name="cqebd.student.service.ClassService"
-                android:enabled="true"
-                android:exported="false">
-        </service>
-    </application>
+	<application>
+		<service
+			android:name="cqebd.student.service.ClassService"
+			android:enabled="true"
+			android:exported="false" />
+	</application>
 
 </manifest>

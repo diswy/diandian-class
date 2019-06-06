@@ -2,10 +2,7 @@ package cqebd.student.di
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import cqebd.student.viewmodel.AnswerCardViewModel
-import cqebd.student.viewmodel.UserViewModel
-import cqebd.student.viewmodel.VideoViewModel
-import cqebd.student.viewmodel.WorkViewModel
+import cqebd.student.viewmodel.*
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
@@ -22,24 +19,29 @@ abstract class EbdViewModelModule {
 
     @Binds
     @IntoMap
-    @xiaofu.lib.network.di.ViewModelKey(UserViewModel::class)
+    @ViewModelKey(UserViewModel::class)
     abstract fun bindUserViewModel(userViewModel: UserViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @xiaofu.lib.network.di.ViewModelKey(VideoViewModel::class)
+    @ViewModelKey(VideoViewModel::class)
     abstract fun bindVideoViewModel(videoViewModel: VideoViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @xiaofu.lib.network.di.ViewModelKey(WorkViewModel::class)
+    @ViewModelKey(WorkViewModel::class)
     abstract fun bindWorkViewModel(workViewModel: WorkViewModel): ViewModel
 
     @Binds
     @IntoMap
-    @xiaofu.lib.network.di.ViewModelKey(AnswerCardViewModel::class)
+    @ViewModelKey(AnswerCardViewModel::class)
     abstract fun bindToDoWorkViewModel(answerCardViewModel: AnswerCardViewModel): ViewModel
 
     @Binds
-    abstract fun bindViewModelFactory(factory: xiaofu.lib.network.di.ViewModelFactory): ViewModelProvider.Factory
+    @IntoMap
+    @ViewModelKey(ClassViewModel::class)
+    abstract fun bindToClassViewModel(classViewModel: ClassViewModel): ViewModel
+
+    @Binds
+    abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory
 }

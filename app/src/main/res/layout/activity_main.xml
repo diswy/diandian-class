@@ -1,15 +1,202 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical"
-	tools:context=".MainActivity">
+	android:background="@drawable/ic_student_index_bg"
+	tools:ignore="ContentDescription,PxUsage,HardcodedText">
 
-	<Button
-		android:id="@+id/btn_connect"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" />
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
 
-</LinearLayout>
+		<TextView
+			android:id="@+id/header"
+			android:layout_width="0dp"
+			android:layout_height="100px"
+			android:background="@color/colorPrimary"
+			android:gravity="center"
+			android:text="互动课堂"
+			android:textColor="@color/white"
+			android:textSize="22sp"
+			android:textStyle="bold"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<TextView
+			android:id="@+id/stu_index_datetime"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="114px"
+			android:layout_marginTop="144px"
+			android:text="14:24"
+			android:textColor="@color/date_color"
+			android:textSize="100px"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/header"
+			tools:text="14:24" />
+
+		<TextView
+			android:id="@+id/stu_index_date"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="21px"
+			android:text="2月22日 周五下午"
+			android:textColor="@color/date_color"
+			android:textSize="24px"
+			app:layout_constraintEnd_toEndOf="@id/stu_index_datetime"
+			app:layout_constraintStart_toStartOf="@id/stu_index_datetime"
+			app:layout_constraintTop_toBottomOf="@id/stu_index_datetime"
+			tools:text="2月22日 周五下午" />
+
+		<ImageView
+			android:id="@+id/stu_index_info_bg"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="445px"
+			android:layout_marginTop="109px"
+			android:src="@drawable/ic_student_index_info"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/header" />
+
+		<ImageView
+			android:id="@+id/stu_index_info_photo"
+			android:layout_width="213px"
+			android:layout_height="213px"
+			android:layout_marginTop="145px"
+			android:src="@drawable/ic_student_index_photo"
+			app:layout_constraintEnd_toEndOf="@id/stu_index_info_bg"
+			app:layout_constraintStart_toStartOf="@id/stu_index_info_bg"
+			app:layout_constraintTop_toTopOf="@id/stu_index_info_bg" />
+
+		<ImageView
+			android:id="@+id/stu_index_info_sex"
+			android:layout_width="30px"
+			android:layout_height="30px"
+			android:layout_marginStart="34px"
+			android:layout_marginTop="22px"
+			android:src="@drawable/ic_student_index_sex_female"
+			app:layout_constraintStart_toStartOf="@id/stu_index_info_photo"
+			app:layout_constraintTop_toBottomOf="@id/stu_index_info_photo" />
+
+		<TextView
+			android:id="@+id/stu_index_info_name"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="12px"
+			android:layout_marginTop="11px"
+			android:text="李庚萌"
+			android:textColor="@color/white"
+			android:textSize="36px"
+			app:layout_constraintStart_toEndOf="@id/stu_index_info_sex"
+			app:layout_constraintTop_toBottomOf="@id/stu_index_info_photo"
+			tools:text="李庚萌" />
+
+		<TextView
+			android:id="@+id/stu_index_info_classroom"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="11px"
+			android:text="5班"
+			android:textColor="@color/white"
+			android:textSize="32px"
+			app:layout_constraintEnd_toEndOf="@+id/stu_index_info_bg"
+			app:layout_constraintStart_toStartOf="@+id/stu_index_info_bg"
+			app:layout_constraintTop_toBottomOf="@id/stu_index_info_name" />
+
+		<TextView
+			android:id="@+id/stu_index_info_grade_img"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="74px"
+			android:layout_marginTop="109px"
+			android:gravity="center"
+			android:text="这里要用星星显示分数"
+			android:textColor="@color/white"
+			android:textSize="26px"
+			app:layout_constraintStart_toStartOf="@+id/stu_index_info_bg"
+			app:layout_constraintTop_toBottomOf="@id/stu_index_info_classroom" />
+
+		<TextView
+			android:id="@+id/stu_index_info_grade"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="12px"
+			android:text="0分"
+			android:textColor="@color/white"
+			android:textSize="26px"
+			app:layout_constraintStart_toEndOf="@id/stu_index_info_grade_img"
+			app:layout_constraintTop_toTopOf="@id/stu_index_info_grade_img"
+			tools:text="0分" />
+
+		<ImageView
+			android:id="@+id/stu_index_file_bg"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="9px"
+			android:src="@drawable/ic_student_index_file_bg"
+			app:layout_constraintStart_toEndOf="@id/stu_index_info_bg"
+			app:layout_constraintTop_toTopOf="@id/stu_index_info_bg" />
+
+		<ImageView
+			android:id="@+id/stu_index_file_icon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="103px"
+			android:src="@drawable/ic_student_index_file"
+			app:layout_constraintEnd_toEndOf="@+id/stu_index_file_bg"
+			app:layout_constraintStart_toStartOf="@+id/stu_index_file_bg"
+			app:layout_constraintTop_toTopOf="@id/stu_index_file_bg" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="53px"
+			android:layout_marginEnd="51px"
+			android:text="我的文件"
+			android:textColor="@color/white"
+			android:textSize="32px"
+			app:layout_constraintEnd_toEndOf="@id/stu_index_file_bg"
+			app:layout_constraintTop_toBottomOf="@id/stu_index_file_icon" />
+
+		<ImageView
+			android:id="@+id/stu_index_bag_bg"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_student_index_bag_bg"
+			app:layout_constraintStart_toStartOf="@id/stu_index_file_bg"
+			app:layout_constraintTop_toBottomOf="@id/stu_index_file_bg" />
+
+		<ImageView
+			android:id="@+id/stu_index_bag_icon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="103px"
+			android:src="@drawable/ic_student_index_bag"
+			app:layout_constraintEnd_toEndOf="@+id/stu_index_bag_bg"
+			app:layout_constraintStart_toStartOf="@+id/stu_index_bag_bg"
+			app:layout_constraintTop_toTopOf="@id/stu_index_bag_bg" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="53px"
+			android:layout_marginEnd="51px"
+			android:text="电子书包"
+			android:textColor="@color/white"
+			android:textSize="32px"
+			app:layout_constraintEnd_toEndOf="@id/stu_index_bag_bg"
+			app:layout_constraintTop_toBottomOf="@id/stu_index_bag_icon" />
+
+		<FrameLayout
+			android:id="@+id/container_main"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
