@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import androidx.lifecycle.ViewModelProvider
@@ -14,8 +13,8 @@ import com.orhanobut.logger.AndroidLogAdapter
 import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
 import cqebd.student.di.DaggerAppComponent
+import cqebd.student.receiver.WifiBroadcastReceiver
 import cqebd.student.service.ClassService
-import org.jetbrains.anko.toast
 import xiaofu.lib.base.BuildConfig
 import xiaofu.lib.base.IBaseApplication
 import javax.inject.Inject
@@ -27,9 +26,10 @@ import javax.inject.Inject
  */
 class BaseApp : Application() {
     private val moduleList = arrayOf(
-            "cqebd.student.module.user.UserApp",
-            "cqebd.student.module.video.VideoApp",
-            "cqebd.student.module.work.WorkApp")
+        "cqebd.student.module.user.UserApp",
+        "cqebd.student.module.video.VideoApp",
+        "cqebd.student.module.work.WorkApp"
+    )
 
     companion object {
         lateinit var instance: BaseApp
@@ -48,7 +48,7 @@ class BaseApp : Application() {
         instance = this
 
         DaggerAppComponent.builder().application(this)
-                .build().inject(this)
+            .build().inject(this)
 
 //        if (LeakCanary.isInAnalyzerProcess(this))
 //            return
@@ -62,9 +62,12 @@ class BaseApp : Application() {
         registerNetworkChanged()
         liveDataBusInit()
 
-//        SophixManager.getInstance().queryAndLoadNewPatch()
 
-        startService(Intent(this,ClassService::class.java))
+        val isServiceStarted = WifiBroadcastReceiver.isServiceRunning(this, "cqebd.student.service.ClassService")
+        if (!isServiceStarted) {
+            startService(Intent(this, ClassService::class.java))
+        }
+
     }
 
     /**
@@ -95,8 +98,8 @@ class BaseApp : Application() {
      */
     private fun initLogger() {
         val formatStrategy = PrettyFormatStrategy.newBuilder()
-                .tag("cqebd")
-                .build()
+            .tag("cqebd")
+            .build()
         Logger.addLogAdapter(object : AndroidLogAdapter(formatStrategy) {
             override fun isLoggable(priority: Int, tag: String?): Boolean {
                 return BuildConfig.SHOW_LOG
@@ -109,9 +112,9 @@ class BaseApp : Application() {
      */
     private fun liveDataBusInit() {
         LiveEventBus.get()
-                .config()
-                .supportBroadcast(this)
-                .lifecycleObserverAlwaysActive(true)
+            .config()
+            .supportBroadcast(this)
+            .lifecycleObserverAlwaysActive(true)
     }
 
     private fun registerNetworkChanged() {

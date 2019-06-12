@@ -40,8 +40,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     api deps.support.app_compat
     api deps.support.recyclerview
     api deps.support.constraint_layout
@@ -64,10 +63,8 @@ dependencies {
     api deps.dagger2.core
     api deps.rxjava2.core
     api deps.rxjava2.android
-
     // 阿里热更新
     api 'com.aliyun.ams:alicloud-android-hotfix:3.2.8'
-
     debugApi 'com.readystatesoftware.chuck:library:1.1.0'
     releaseApi 'com.readystatesoftware.chuck:library-no-op:1.1.0'
     debugApi 'com.squareup.leakcanary:leakcanary-android:1.6.3'
@@ -94,13 +91,13 @@ dependencies {
     api 'com.jeremyliao:live-event-bus-x:1.4.0'
     // 权限
     api 'com.github.tbruyelle:rxpermissions:0.10.2'
-
+    api 'com.king.zxing:zxing-lite:1.1.1'
     kapt deps.kapt.arouter_compiler
     kapt deps.kapt.databinding_compiler
     kapt deps.kapt.glide
     kapt deps.kapt.dagger2
     kapt deps.kapt.room
-
     // 组件
     api project(':component_picture_selector')
+    api files('libs/HRA_API_RK3368H_7.1__201809111025.jar')
 }

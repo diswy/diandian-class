@@ -69,7 +69,7 @@ public class TimeFormat {
     }
 
     public static String clock(long timeMillis) {
-        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss", Locale.CHINA);
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm", Locale.CHINA);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(timeMillis);
         return format.format(calendar.getTime());

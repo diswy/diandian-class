@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import cn.alauncher.demo2.hralibrary.HRA_API
 import com.alibaba.android.arouter.launcher.ARouter
 import com.google.gson.JsonParseException
 import io.reactivex.Flowable
@@ -60,6 +61,7 @@ abstract class BaseActivity : AppCompatActivity(), AnkoLogger {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        hraConfig()
 //        job = Job()
         TAG = componentName.className
         root = window.decorView.findViewById(android.R.id.content)
@@ -250,4 +252,7 @@ abstract class BaseActivity : AppCompatActivity(), AnkoLogger {
         return aRouter.navigation() as Fragment
     }
     //--------路由封装--------
+    private fun hraConfig(){
+
+    }
 }

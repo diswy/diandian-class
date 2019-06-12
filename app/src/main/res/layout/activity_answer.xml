@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:context="com.cqebd.live.ui.aty.AnswerActivity"
+	tools:ignore="PxUsage">
+
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent">
+
+		<ImageView
+			android:id="@+id/iv_question"
+			android:layout_width="1300px"
+			android:layout_height="0dp"
+			android:contentDescription="@string/img"
+			android:scaleType="fitXY"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<androidx.recyclerview.widget.RecyclerView
+			android:id="@+id/rv"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			android:background="#eee"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@+id/iv_question"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<TextView
+			android:id="@+id/btn_commit"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:background="@drawable/bg_btn_commit"
+			android:gravity="center"
+			android:text="提 交"
+			android:textColor="@color/white"
+			android:textSize="48px"
+			android:textStyle="bold"
+			app:layout_constraintBottom_toBottomOf="@+id/rv"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="@+id/rv"
+			tools:ignore="HardcodedText" />
+
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

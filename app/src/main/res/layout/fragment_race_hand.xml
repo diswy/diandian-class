@@ -1,33 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:background="@color/white"
 	tools:context="com.cqebd.live.ui.RaceHandActivity"
 	tools:ignore="PxUsage,HardcodedText">
 
-	<ImageView
-		android:id="@+id/student_responder_img"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="257px"
-		android:contentDescription="@string/img"
-		android:src="@drawable/ic_student_responder"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+	<androidx.constraintlayout.widget.ConstraintLayout
+		android:id="@+id/container"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@color/white"
+		android:clickable="true"
+		android:focusable="true">
 
-	<TextView
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="44px"
-		android:text="课堂抢答，现在开始"
-		android:textColor="@color/color666"
-		android:textSize="74px"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/student_responder_img" />
+		<ImageView
+			android:id="@+id/student_responder_img"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="257px"
+			android:contentDescription="@string/img"
+			android:src="@drawable/ic_student_responder"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+		<TextView
+			android:id="@+id/hint_tv"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="44px"
+			android:text="课堂抢答，现在开始"
+			android:textColor="@color/color666"
+			android:textSize="74px"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/student_responder_img" />
+
+
+		<de.hdodenhof.circleimageview.CircleImageView
+			android:id="@+id/responder_success_stu_photo"
+			android:layout_width="213px"
+			android:layout_height="213px"
+			android:layout_marginTop="198px"
+			android:contentDescription="@string/img"
+			android:src="@drawable/ic_student_index_photo"
+			android:visibility="gone"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<TextView
+			android:id="@+id/responder_success_stu_name"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="18px"
+			android:text="李庚萌"
+			android:textColor="@color/color666"
+			android:textSize="36px"
+			android:visibility="gone"
+			app:layout_constraintEnd_toEndOf="@+id/responder_success_stu_photo"
+			app:layout_constraintStart_toStartOf="@+id/responder_success_stu_photo"
+			app:layout_constraintTop_toBottomOf="@id/responder_success_stu_photo"
+			tools:text="李庚萌" />
+
+		<ImageView
+			android:visibility="gone"
+			android:id="@+id/responder_success_img"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="60px"
+			android:contentDescription="@string/img"
+			android:src="@drawable/ic_responder_success"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/responder_success_stu_name" />
+
+		<TextView
+			android:visibility="gone"
+			android:id="@+id/responder_success_be_praised"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="50px"
+			android:gravity="center"
+			android:text="这里要用进度条显示点赞数"
+			android:textColor="@color/date_color"
+			android:textSize="26px"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/responder_success_img" />
+
+
+		<TextView
+			android:id="@+id/responder_fail_prise"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="76px"
+			android:text="太棒了,大家可以给他点赞哦！"
+			android:textColor="@color/date_color"
+			android:textSize="36px"
+			android:visibility="gone"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/responder_success_stu_name" />
+
+		<ImageView
+			android:id="@+id/btn_sub"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:contentDescription="@string/img"
+			android:src="@drawable/ic_responder_praise"
+			android:visibility="gone"
+			app:layout_constraintStart_toEndOf="@id/responder_fail_prise"
+			app:layout_constraintTop_toTopOf="@id/responder_fail_prise" />
+
+	</androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
