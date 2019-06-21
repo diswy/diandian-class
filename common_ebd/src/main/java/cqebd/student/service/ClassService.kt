@@ -1,11 +1,13 @@
 package cqebd.student.service
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import cn.alauncher.demo2.hralibrary.HRA_API
 import com.alibaba.android.arouter.launcher.ARouter
+import com.google.gson.Gson
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.open.net.client.impl.tcp.nio.NioClient
 import com.open.net.client.structures.BaseClient
@@ -17,28 +19,46 @@ import com.orhanobut.logger.Logger
 import cqebd.student.commandline.CacheKey
 import cqebd.student.commandline.Command
 import cqebd.student.vo.MyIntents
+import cqebd.student.vo.User
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import net.gotev.uploadservice.ServerResponse
+import net.gotev.uploadservice.UploadInfo
+import net.gotev.uploadservice.UploadStatusDelegate
+import net.gotev.uploadservice.ftp.FTPUploadRequest
 import xiaofu.lib.cache.ACache
 import java.nio.charset.Charset
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
 class ClassService : Service() {
 
     private lateinit var cache: ACache
+    private lateinit var user: User
 
     /**
      * 桥接学生发送指令到服务端
      */
     private val observer = androidx.lifecycle.Observer<String> {
-        when (it) {
+        Log.i("xiaofu", "桥接命令：$it")
+        val sCommand = it.split(" ")
+
+        when (sCommand[0]) {
             Command.EAGER_ANSWER -> {
-                send(Command.EAGER_ANSWER.plus(" 1"))// 这里空格+学生ID
+                if (::user.isInitialized){
+                    send(Command.EAGER_ANSWER.plus(" ${user.ID}"))// 这里空格+学生ID
+                }
             }
             Command.CONNECT_IP -> {
                 connectSocket()
+            }
+            Command.STUDENT_INFO_UPDATE -> {
+                updateUserInfo(it)
+            }
+            Command.ANSWER_SUBMIT,Command.EAGER_PRAISE -> {
+                send(it)
             }
         }
     }
@@ -50,8 +70,8 @@ class ClassService : Service() {
     private val messageProcessor = object : BaseMessageProcessor() {
         override fun onReceiveMessages(mClient: BaseClient?, mQueen: LinkedList<Message>?) {
             mQueen?.forEach {
-                val s = String(it.data, it.offset, it.length, Charset.forName("GBK"))
-
+                val s = String(it.data, it.offset, it.length, Charset.forName("UTF-8"))
+                Log.e("command",s)
                 executeLine(s)
             }
         }
@@ -71,7 +91,10 @@ class ClassService : Service() {
         mClient = NioClient(messageProcessor, object : IConnectListener {
             override fun onConnectionSuccess() {
                 Log.d("xiaofu", "socket连接成功")
-                messageProcessor.send(mClient, "Socket连接成功\r\n".toByteArray())
+                val loginFormat = "%s %d %d %s %s"// 指令、ID、身份证号、名字、头像
+                if (::user.isInitialized) {
+                    send(loginFormat.format(Command.LOGIN_ROOM, user.ID, 0, user.Name, user.Avatar))
+                }
 
                 ARouter.getInstance()
                         .build("/app/main")
@@ -97,12 +120,21 @@ class ClassService : Service() {
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe {
-                    Log.w("xiaofu", "延迟发送消息")
+                    Log.w("-socket-", "延迟发送消息")
                     if (!mClient.isConnected) {// 未连接
-                        HRA_API.getHRA_API(applicationContext).setStatusBarDropEnable(applicationContext)
-                        HRA_API.getHRA_API(applicationContext).setHomeVisible(applicationContext)
-                        HRA_API.getHRA_API(applicationContext).setRecentVisible(applicationContext)
-                        connectSocket()
+                        Log.w("-socket-", "未连接，准备连接")
+                        val userString = cache.getAsString(CacheKey.KEY_USER) ?: return@subscribe
+                        Log.w("-socket-", "未连接，准备连接 用户：$userString")
+                        try {
+                            user = Gson().fromJson(userString, User::class.java)
+
+                            HRA_API.getHRA_API(applicationContext).setStatusBarDropEnable(applicationContext)
+                            HRA_API.getHRA_API(applicationContext).setHomeVisible(applicationContext)
+                            HRA_API.getHRA_API(applicationContext).setRecentVisible(applicationContext)
+                            connectSocket()
+                        } catch (e: Exception) {
+
+                        }
                     }
                 }
     }
@@ -132,7 +164,7 @@ class ClassService : Service() {
     }
 
     /**
-     * 处理命令
+     * 处理命令服务端
      */
     private fun executeLine(line: String) {
         val mCommand = line.split(" ")
@@ -140,6 +172,9 @@ class ClassService : Service() {
             Log.w("xiaofu", it)
         }
         when (mCommand[0]) {
+            Command.LOGIN_ROOM_RESULT -> {// 返回登陆结果
+
+            }
             Command.LOCK_SCREEN -> {// 锁屏
                 ARouter.getInstance()
                         .build("/app/aty/lockScreen")
@@ -148,6 +183,7 @@ class ClassService : Service() {
             Command.ANSWER_START -> {// 开始答题
                 ARouter.getInstance()
                         .build("/app/aty/answer")
+                        .withString("commands", line)
                         .navigation()
             }
             Command.UNLOCK_SCREEN, Command.EAGER_ANSWER_START, Command.EAGER_ANSWER_STOP -> {// 解锁,抢答，抢答结束
@@ -179,9 +215,76 @@ class ClassService : Service() {
      */
     private fun connectSocket() {
         val cache = ACache.get(this)
+        Log.e("xiaofu","连接  socket")
         val ip = cache.getAsString(CacheKey.IP_ADDRESS) ?: return
-
+        Log.e("xiaofu","连接  socket = ${ip}")
         mClient.setConnectAddress(arrayOf(TcpAddress(ip, 2020)))
         mClient.connect()
+    }
+
+    /**
+     * FTP 服务
+     */
+    private fun uploadFTP(filePath: String) {
+        try {
+            val cache = ACache.get(this)
+            val ip = cache.getAsString(CacheKey.IP_ADDRESS) ?: return
+
+            FTPUploadRequest(applicationContext, ip, 17171)
+                    .setUsernameAndPassword("ftpd", "password")
+                    .addFileToUpload(filePath, "")
+                    .setMaxRetries(2)
+                    .setDelegate(object : UploadStatusDelegate {
+                        override fun onCancelled(context: Context?, uploadInfo: UploadInfo?) {
+                            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                        }
+
+                        override fun onProgress(context: Context?, uploadInfo: UploadInfo?) {
+                        }
+
+
+                        override fun onError(
+                                context: Context?,
+                                uploadInfo: UploadInfo?,
+                                serverResponse: ServerResponse?,
+                                exception: java.lang.Exception?
+                        ) {
+
+                        }
+
+                        override fun onCompleted(
+                                context: Context?,
+                                uploadInfo: UploadInfo?,
+                                serverResponse: ServerResponse?
+                        ) {
+
+                        }
+
+                    })
+                    .startUpload()
+        } catch (e: Exception) {
+
+        }
+    }
+
+    private fun getFtpRemotePath(): String {
+        val date = Date(System.currentTimeMillis())
+        val format = SimpleDateFormat("/yyyy/MM", Locale.CHINA)
+        return format.format(date)
+    }
+
+
+    //-----------指令
+    private fun updateUserInfo(line: String) {
+        val sCommand = line.split(" ")
+        try {
+            if (sCommand[3].contains("localPath//:")) {// 本地图片，需要调用FTP
+                uploadFTP(sCommand[3].replace("localPath//:", ""))
+            } else {
+                send(line)
+            }
+        } catch (e: Exception) {
+
+        }
     }
 }

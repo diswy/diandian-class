@@ -7,6 +7,7 @@ import android.net.Uri
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
@@ -39,6 +40,9 @@ import java.io.File
  */
 fun ImageView.loadUrl(context: Context, url: String?) {
     GlideApp.with(context).load(url).fitCenter().into(this)
+}
+fun ImageView.loadUrl(frag: Fragment, url: String?) {
+    GlideApp.with(frag).load(url).fitCenter().into(this)
 }
 
 fun ImageView.loadUrl(context: Context, res: Int?) {

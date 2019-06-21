@@ -14,20 +14,32 @@
 			android:layout_width="1300px"
 			android:layout_height="0dp"
 			android:contentDescription="@string/img"
-			android:scaleType="fitXY"
+			android:scaleType="centerInside"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
+
+		<TextView
+			android:id="@+id/tv_title"
+			android:layout_width="0dp"
+			android:layout_height="100px"
+			android:background="#edf7f4"
+			android:gravity="center"
+			android:textSize="20sp"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="@+id/rv"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:text="标题" />
 
 		<androidx.recyclerview.widget.RecyclerView
 			android:id="@+id/rv"
 			android:layout_width="0dp"
 			android:layout_height="0dp"
-			android:background="#eee"
+			android:background="#edf7f4"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@+id/iv_question"
-			app:layout_constraintTop_toTopOf="parent" />
+			app:layout_constraintTop_toBottomOf="@+id/tv_title" />
 
 		<TextView
 			android:id="@+id/btn_commit"
@@ -37,7 +49,7 @@
 			android:gravity="center"
 			android:text="提 交"
 			android:textColor="@color/white"
-			android:textSize="48px"
+			android:textSize="22sp"
 			android:textStyle="bold"
 			app:layout_constraintBottom_toBottomOf="@+id/rv"
 			app:layout_constraintEnd_toEndOf="parent"

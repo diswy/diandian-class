@@ -1,5 +1,6 @@
 package xiaofu.lib.utils
 
+import org.apache.commons.net.util.Base64
 import java.net.URLEncoder
 import java.util.regex.Pattern
 
@@ -13,6 +14,24 @@ fun String.unicode(): String {
         URLEncoder.encode(this, "utf-8")
     } catch (e: Exception) {
         this
+    }
+}
+
+fun String.base64(): String {
+    val base64 = Base64()
+    return try {
+        return base64.encodeToString(this.toByteArray())
+    } catch (e: Exception) {
+        ""
+    }
+}
+
+fun String.base64ToS(): String {
+    val base64 = Base64()
+    return try {
+        return String(base64.decode(this.toByteArray()))
+    } catch (e: Exception) {
+        ""
     }
 }
 

@@ -69,36 +69,26 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/header" />
 
-		<ImageView
+		<de.hdodenhof.circleimageview.CircleImageView
 			android:id="@+id/stu_index_info_photo"
 			android:layout_width="213px"
 			android:layout_height="213px"
 			android:layout_marginTop="145px"
-			android:src="@drawable/ic_student_index_photo"
+			tools:src="@drawable/ic_student_index_photo"
 			app:layout_constraintEnd_toEndOf="@id/stu_index_info_bg"
 			app:layout_constraintStart_toStartOf="@id/stu_index_info_bg"
 			app:layout_constraintTop_toTopOf="@id/stu_index_info_bg" />
-
-		<ImageView
-			android:id="@+id/stu_index_info_sex"
-			android:layout_width="30px"
-			android:layout_height="30px"
-			android:layout_marginStart="34px"
-			android:layout_marginTop="22px"
-			android:src="@drawable/ic_student_index_sex_female"
-			app:layout_constraintStart_toStartOf="@id/stu_index_info_photo"
-			app:layout_constraintTop_toBottomOf="@id/stu_index_info_photo" />
 
 		<TextView
 			android:id="@+id/stu_index_info_name"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="12px"
 			android:layout_marginTop="11px"
 			android:text="李庚萌"
 			android:textColor="@color/white"
-			android:textSize="36px"
-			app:layout_constraintStart_toEndOf="@id/stu_index_info_sex"
+			android:textSize="16sp"
+			app:layout_constraintEnd_toEndOf="@+id/stu_index_info_bg"
+			app:layout_constraintStart_toStartOf="@+id/stu_index_info_bg"
 			app:layout_constraintTop_toBottomOf="@id/stu_index_info_photo"
 			tools:text="李庚萌" />
 

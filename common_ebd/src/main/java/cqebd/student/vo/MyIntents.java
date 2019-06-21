@@ -5,4 +5,5 @@ package cqebd.student.vo;
  */
 public class MyIntents {
     public static boolean classStatus = false;
+    public static int currentCount = 0;
 }

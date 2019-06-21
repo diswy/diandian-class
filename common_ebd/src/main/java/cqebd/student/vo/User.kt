@@ -1,6 +1,7 @@
 package cqebd.student.vo
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 /**
  *
@@ -26,7 +27,7 @@ data class User(@SerializedName("studentId")
                 var Flower: Int,// 红花数量
                 var Medal: Int,// 红花数量
                 val IsGroup: Boolean)// 是否是小组长
-{
+    : Serializable {
     //科目
     data class Subject(val Id: Int,
                        val Name: String,

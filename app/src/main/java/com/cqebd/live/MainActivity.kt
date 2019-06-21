@@ -11,25 +11,37 @@ import android.view.KeyEvent
 import android.view.View
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import cn.alauncher.demo2.hralibrary.HRA_API
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.alibaba.android.arouter.launcher.ARouter
 import com.cqebd.live.databinding.ActivityMainBinding
 import com.cqebd.live.ui.QRActivity
+import com.google.gson.Gson
+import com.google.gson.JsonParseException
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.king.zxing.Intents
+import com.orhanobut.logger.Logger
 import com.tbruyelle.rxpermissions2.RxPermissions
 import cqebd.student.BaseApp
 import cqebd.student.commandline.CacheKey
 import cqebd.student.commandline.Command
 import cqebd.student.viewmodel.ClassViewModel
+import cqebd.student.vo.CAnswerInfo
 import cqebd.student.vo.MyIntents
+import cqebd.student.vo.User
 import org.jetbrains.anko.toast
 import xiaofu.lib.base.activity.BaseBindActivity
 import xiaofu.lib.cache.ACache
+import xiaofu.lib.inline.loadUrl
+import xiaofu.lib.utils.base64
 import java.io.*
+import java.util.*
 
 
 @Route(path = "/app/main")
 class MainActivity : BaseBindActivity<ActivityMainBinding>() {
+
+    private lateinit var cache: ACache
 
     private lateinit var viewModel: ClassViewModel
 
@@ -67,6 +79,9 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
     override fun getLayoutRes(): Int = R.layout.activity_main
 
     override fun initialize(binding: ActivityMainBinding) {
+        ARouter.getInstance().inject(this)
+        cache = ACache.get(this)
+
         LiveEventBus.get()
                 .with(Command.COMMAND, String::class.java)
                 .observeForever(observer)
@@ -79,6 +94,29 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
         mDisposablePool.add(viewModel.startTime())
 
         binding.stuIndexDate.text = viewModel.getStringData()
+
+        readInfoBySD()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // 初始化昵称和头像
+        val nickname: String? = cache.getAsString(CacheKey.KEY_NICK)
+        val avatar: String? = cache.getAsString(CacheKey.KEY_AVATAR)
+
+        if (nickname == null) {
+            val s = UUID.randomUUID().toString()
+            cache.put(CacheKey.KEY_NICK, s)
+            binding.stuIndexInfoName.text = s
+        } else {
+            binding.stuIndexInfoName.text = nickname
+        }
+        if (avatar == null) {
+            binding.stuIndexInfoPhoto.loadUrl(this, R.drawable.ic_student_index_photo)
+        } else {
+            binding.stuIndexInfoPhoto.loadUrl(this, avatar)
+        }
     }
 
     override fun bindListener(binding: ActivityMainBinding) {
@@ -98,19 +136,10 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
 
         binding.stuIndexBagBg.setOnClickListener {
             doStartApplicationWithPackageName("org.qimon.launcher6")
+        }
 
-//            RxPermissions(this).request(
-//                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-//                    Manifest.permission.READ_EXTERNAL_STORAGE
-//            )
-//                    .subscribe {
-//                        if (it) {
-////                        readUser()
-//                        } else {
-//                            toast("你拒绝了使用权限")
-//                        }
-//                    }
-
+        binding.stuIndexInfoBg.setOnClickListener {
+            navigation("/app/aty/user_info")
         }
 
     }
@@ -123,16 +152,16 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                 val result = data.getStringExtra(Intents.Scan.RESULT) ?: return
 
                 val cache = ACache.get(this)
-//                cache.put(CacheKey.IP_ADDRESS, result)
-                cache.put(CacheKey.IP_ADDRESS, "192.168.1.109")
+                cache.put(CacheKey.IP_ADDRESS, result.substring(1))
+//                cache.put(CacheKey.IP_ADDRESS, "192.168.1.109")
                 LiveEventBus.get()
-                        .with(Command.COMMAND, String::class.java)
-                        .post(Command.CONNECT_IP)
+                    .with(Command.COMMAND, String::class.java)
+                    .post(Command.CONNECT_IP)
                 toast(result)
             }
         }
-
     }
+
 
     // 启动第三方应用
     private fun doStartApplicationWithPackageName(packagename: String) {
@@ -200,6 +229,22 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
         outStream.close()
     }
 
+
+    // 读取本地文件
+    private fun readInfoBySD() {
+        val task = RxPermissions(this).request(
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                .subscribe {
+                    if (it) {
+                        readUser()
+                    } else {
+                        toast("你拒绝了使用权限")
+                    }
+                }
+        mDisposablePool.add(task)
+    }
+
     private fun readUser() {
         val path = Environment.getExternalStorageDirectory().absolutePath.plus("/yunketang/shared/user")
         val file = File(path)
@@ -218,9 +263,21 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                 }
                 inputStream.close()
                 Log.d("xiaofu", strBuilder.toString())
-            } catch (e: Exception) {
 
+//                val user: User = Gson().fromJson(strBuilder.toString(), User::class.java)
+//                cache.put(CacheKey.KEY_ID, user.ID.toString())
+                cache.put(CacheKey.KEY_USER, strBuilder.toString())
+            } catch (e: Exception) {
+                toast("请先打开点点课，进行登陆操作")
             }
         }
+
+        val a  = CAnswerInfo("https://hbimg.huabanimg.com/d7a2404d0c3eb00f7c8433f0c50a266f9f47272f3539f3-ucIriy_fw658",1,3,4,0)
+        Log.e("xiaofu",Gson().toJson(a))
+
+//        val s = "[{\"Content\":\"A\",\"QuestionIndex\":0},{\"Content\":\"B\",\"QuestionIndex\":1},{\"Content\":\"C\",\"QuestionIndex\":2},{\"Content\":\"D\",\"QuestionIndex\":3}]"
+//        Logger.d("Json:$s")
+//        Logger.d("Json Base64:${s.base64().replace("[\\s*\t\n\r]".toRegex(), "")}")
     }
+
 }

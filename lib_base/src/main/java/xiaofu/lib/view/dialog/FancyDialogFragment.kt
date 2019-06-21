@@ -56,6 +56,16 @@ class FancyDialogFragment : DialogFragment() {
         return this
     }
 
+    fun setWidth(widthPx: Int): FancyDialogFragment {
+        width = widthPx
+        return this
+    }
+
+    fun setHeight(heightPx: Int): FancyDialogFragment {
+        height = heightPx
+        return this
+    }
+
     fun setViewListener(listener: ((FancyDialogFragment, ViewDataBinding) -> Unit)): FancyDialogFragment {
         this.mListener = listener
         return this

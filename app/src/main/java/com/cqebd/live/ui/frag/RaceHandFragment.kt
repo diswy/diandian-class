@@ -8,10 +8,15 @@ import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.cqebd.live.R
 import com.cqebd.live.databinding.FragmentRaceHandBinding
+import com.google.gson.Gson
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.orhanobut.logger.Logger
+import cqebd.student.commandline.CacheKey
 import cqebd.student.commandline.Command
+import cqebd.student.vo.User
 import xiaofu.lib.base.fragment.BaseBindFragment
+import xiaofu.lib.cache.ACache
+import xiaofu.lib.inline.loadUrl
 
 
 /**
@@ -20,6 +25,9 @@ import xiaofu.lib.base.fragment.BaseBindFragment
 @Route(path = "/app/frag/race")
 class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
 
+    private lateinit var cache: ACache
+    private lateinit var user: User
+
     private val observer = Observer<String> {
         Log.e("xiaofu", it)
         val mCommand = it.split(" ")
@@ -27,11 +35,14 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
         when (mCommand[0]) {
             Command.EAGER_PRIZE -> {
                 try {
-                    if (mCommand[1] == "1") {
-                        raceSuccess()
-                    }
-                    if (mCommand[1] == "2") {
-                        raceFail()
+                    val userString = cache.getAsString(CacheKey.KEY_USER) ?: return@Observer
+
+                    user = Gson().fromJson(userString, User::class.java)
+
+                    if (mCommand[2] == user.ID.toString()) {
+                        raceSuccess(mCommand[3], mCommand[4])
+                    } else {
+                        raceFail(mCommand[2], mCommand[3], mCommand[4])
                     }
                 } catch (e: Exception) {
 
@@ -46,6 +57,8 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
         LiveEventBus.get()
                 .with(Command.COMMAND, String::class.java)
                 .observe(this, observer)
+
+        cache = ACache.get(activity)
     }
 
     override fun bindListener(activity: FragmentActivity, binding: FragmentRaceHandBinding) {
@@ -64,7 +77,7 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
                 .removeObserver(observer)
     }
 
-    private fun raceSuccess() {
+    private fun raceSuccess(name: String, head: String) {
         binding.studentResponderImg.visibility = View.GONE
         binding.hintTv.visibility = View.GONE
 
@@ -72,9 +85,12 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
         binding.responderSuccessStuName.visibility = View.VISIBLE
         binding.responderSuccessImg.visibility = View.VISIBLE
         binding.responderSuccessBePraised.visibility = View.VISIBLE
+
+        binding.responderSuccessStuName.text = name
+        binding.responderSuccessStuPhoto.loadUrl(this, head)
     }
 
-    private fun raceFail() {
+    private fun raceFail(id: String, name: String, head: String) {
         binding.studentResponderImg.visibility = View.GONE
         binding.hintTv.visibility = View.GONE
 
@@ -82,6 +98,18 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
         binding.responderSuccessStuName.visibility = View.VISIBLE
         binding.btnSub.visibility = View.VISIBLE
         binding.responderFailPrise.visibility = View.VISIBLE
+
+        binding.responderSuccessStuName.text = name
+        binding.responderSuccessStuPhoto.loadUrl(this, head)
+
+        binding.btnSub.setOnClickListener {
+            if (::user.isInitialized) {
+                val subFormat = "%s %s %s 1"//命令，自己ID，点赞学生ID，点赞
+                LiveEventBus.get()
+                        .with(Command.COMMAND, String::class.java)
+                        .post(subFormat.format(Command.EAGER_PRAISE, user.ID, id))
+            }
+        }
     }
 
 

@@ -9,4 +9,8 @@ public class StringUtils {
     public static String getS(@NonNull byte[] bytes, int offset, int length) {
         return new String(bytes, offset, length);
     }
+
+    public static String replace(String content){
+        return content.replaceAll("","");
+    }
 }

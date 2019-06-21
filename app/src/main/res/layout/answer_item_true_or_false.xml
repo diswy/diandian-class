@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/rg_single"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal"
+	android:paddingStart="60px"
+	android:paddingTop="40px"
+	android:paddingEnd="60px"
+	android:paddingBottom="40px"
+	tools:ignore="PxUsage,HardcodedText">
+
+	<TextView
+		android:id="@+id/tv_indicator"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		tools:text="1、" />
+
+	<Space
+		android:layout_width="0dp"
+		android:layout_height="1dp"
+		android:layout_weight="1" />
+
+	<RadioButton
+		android:layout_marginStart="16dp"
+		android:id="@+id/true_or_false_true"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/answer_single_choice"
+		android:button="@null"
+		android:gravity="center"
+		android:text="√" />
+
+	<Space
+		android:layout_width="0dp"
+		android:layout_height="1dp"
+		android:layout_weight="1" />
+
+	<RadioButton
+		android:id="@+id/true_or_false_false"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/answer_single_choice"
+		android:button="@null"
+		android:gravity="center"
+		android:text="x" />
+
+	<Space
+		android:layout_width="0dp"
+		android:layout_height="1dp"
+		android:layout_weight="1" />
+
+
+</RadioGroup>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/ll_multiple"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal"
+	android:paddingStart="60px"
+	android:paddingTop="40px"
+	android:paddingEnd="60px"
+	android:paddingBottom="40px"
+	tools:ignore="PxUsage,HardcodedText">
+
+	<TextView
+		android:id="@+id/tv_indicator"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		tools:text="1、" />
+
+	<CheckBox
+		android:layout_marginStart="16dp"
+		android:id="@+id/cb_a"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/answer_single_choice"
+		android:button="@null"
+		android:gravity="center"
+		android:text="A" />
+
+	<Space
+		android:layout_width="0dp"
+		android:layout_height="1dp"
+		android:layout_weight="1" />
+
+	<CheckBox
+		android:id="@+id/cb_b"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/answer_single_choice"
+		android:button="@null"
+		android:gravity="center"
+		android:text="B" />
+
+	<Space
+		android:layout_width="0dp"
+		android:layout_height="1dp"
+		android:layout_weight="1" />
+
+	<CheckBox
+		android:id="@+id/cb_c"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/answer_single_choice"
+		android:button="@null"
+		android:gravity="center"
+		android:text="C" />
+
+	<Space
+		android:id="@+id/space_c"
+		android:layout_width="0dp"
+		android:layout_height="1dp"
+		android:layout_weight="1" />
+
+	<CheckBox
+		android:id="@+id/cb_d"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/answer_single_choice"
+		android:button="@null"
+		android:gravity="center"
+		android:text="D"
+		android:visibility="gone"
+		tools:visibility="visible" />
+
+	<Space
+		android:id="@+id/space_d"
+		android:layout_width="0dp"
+		android:layout_height="1dp"
+		android:layout_weight="1" />
+
+	<CheckBox
+		android:id="@+id/cb_e"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/answer_single_choice"
+		android:button="@null"
+		android:gravity="center"
+		android:text="E"
+		android:visibility="gone"
+		tools:visibility="visible" />
+
+	<Space
+		android:id="@+id/space_e"
+		android:layout_width="0dp"
+		android:layout_height="1dp"
+		android:layout_weight="1" />
+
+	<CheckBox
+		android:id="@+id/cb_f"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@drawable/answer_single_choice"
+		android:button="@null"
+		android:gravity="center"
+		android:text="F"
+		android:visibility="gone"
+		tools:visibility="visible" />
+
+</LinearLayout>

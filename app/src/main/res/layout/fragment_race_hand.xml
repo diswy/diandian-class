@@ -89,7 +89,6 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/responder_success_img" />
 
-
 		<TextView
 			android:id="@+id/responder_fail_prise"
 			android:layout_width="wrap_content"

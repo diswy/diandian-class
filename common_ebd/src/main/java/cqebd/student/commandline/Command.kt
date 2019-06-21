@@ -17,6 +17,7 @@ object Command {
     const val JSON_CLASS = "JSON_CLASS"
     const val ANSWER_SUBMIT = "ANSWER_SUBMIT"
     const val EAGER_ANSWER = "EAGER_ANSWER"// 抢答
+    const val EAGER_PRAISE = "EAGER_PRAISE"// 点赞
 
 
     //--------T->S--------
@@ -31,5 +32,7 @@ object Command {
     const val UNLOCK_SCREEN = "UNLOCK_SCREEN"// 解锁
     const val SHUTDOWN = "SHUTDOWN"// 关机
 
+
+    //--------内部通信--------
 
 }

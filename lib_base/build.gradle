@@ -91,7 +91,11 @@ dependencies {
     api 'com.jeremyliao:live-event-bus-x:1.4.0'
     // 权限
     api 'com.github.tbruyelle:rxpermissions:0.10.2'
+    // 二维码
     api 'com.king.zxing:zxing-lite:1.1.1'
+    // FTP
+    api 'net.gotev:uploadservice-ftp:3.5.2'
+
     kapt deps.kapt.arouter_compiler
     kapt deps.kapt.databinding_compiler
     kapt deps.kapt.glide

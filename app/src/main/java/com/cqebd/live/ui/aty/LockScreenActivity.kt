@@ -1,7 +1,6 @@
 package com.cqebd.live.ui.aty
 
 import android.view.KeyEvent
-import android.view.View
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.alibaba.android.arouter.facade.annotation.Route

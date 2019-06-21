@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal"
+	android:paddingStart="60px"
+	android:paddingTop="40px"
+	android:paddingEnd="60px"
+	android:paddingBottom="40px"
+	tools:ignore="PxUsage">
+
+	<TextView
+		android:id="@+id/tv_indicator"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		tools:text="1、" />
+
+	<EditText
+		android:id="@+id/et_blank"
+		android:inputType="text"
+		android:layout_marginStart="16dp"
+		android:layout_marginEnd="16dp"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+
+</LinearLayout>

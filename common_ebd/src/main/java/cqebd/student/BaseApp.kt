@@ -15,6 +15,7 @@ import com.orhanobut.logger.PrettyFormatStrategy
 import cqebd.student.di.DaggerAppComponent
 import cqebd.student.receiver.WifiBroadcastReceiver
 import cqebd.student.service.ClassService
+import net.gotev.uploadservice.UploadService
 import xiaofu.lib.base.BuildConfig
 import xiaofu.lib.base.IBaseApplication
 import javax.inject.Inject
@@ -68,6 +69,8 @@ class BaseApp : Application() {
             startService(Intent(this, ClassService::class.java))
         }
 
+        // FTP init
+        UploadService.NAMESPACE = BuildConfig.APPLICATION_ID
     }
 
     /**
