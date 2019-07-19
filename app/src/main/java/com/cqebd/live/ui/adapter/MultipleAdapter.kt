@@ -92,18 +92,19 @@ class MultipleAdapter : BaseQuickAdapter<Int, BaseViewHolder>(R.layout.answer_it
     fun getMultipleAnswerPack(): String {
         val allAnswer = ArrayList<CAnswerCommit>()
         for (i in cbList.indices) {
-            val list = ArrayList<String>()
+//            val list = ArrayList<String>()
+            var array = ""
 
             for (j in 0..cbList[i].childCount) {
                 if (cbList[i].getChildAt(j) is CheckBox) {
                     val tempCb = cbList[i].getChildAt(j) as CheckBox
                     if (tempCb.isChecked) {
-                        list.add(tempCb.text.toString())
+                        array += tempCb.text.toString()
                     }
                 }
             }
 
-            allAnswer.add(CAnswerCommit(i, Gson().toJson(list)))
+            allAnswer.add(CAnswerCommit(i, array))
         }
 
 

@@ -22,7 +22,7 @@ versions.databinding = "3.2.1"
 versions.arouter_api = "1.4.1"
 versions.arouter_compiler = "1.2.2"
 versions.anko = "0.10.8"
-versions.glide = "4.8.0"
+versions.glide = "4.9.0"
 versions.dagger2 = "2.16"
 versions.rxjava2 = "2.2.4"
 

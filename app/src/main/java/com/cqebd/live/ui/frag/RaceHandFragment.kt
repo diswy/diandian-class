@@ -10,10 +10,13 @@ import com.cqebd.live.R
 import com.cqebd.live.databinding.FragmentRaceHandBinding
 import com.google.gson.Gson
 import com.jeremyliao.liveeventbus.LiveEventBus
-import com.orhanobut.logger.Logger
+import cqebd.student.BaseApp
 import cqebd.student.commandline.CacheKey
 import cqebd.student.commandline.Command
+import cqebd.student.vo.KMyIntent
+import cqebd.student.vo.MyIntents
 import cqebd.student.vo.User
+import org.jetbrains.anko.toast
 import xiaofu.lib.base.fragment.BaseBindFragment
 import xiaofu.lib.cache.ACache
 import xiaofu.lib.inline.loadUrl
@@ -32,9 +35,9 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
         Log.e("xiaofu", it)
         val mCommand = it.split(" ")
 
-        when (mCommand[0]) {
-            Command.EAGER_PRIZE -> {
-                try {
+        try {
+            when (mCommand[0]) {
+                Command.EAGER_PRIZE -> {
                     val userString = cache.getAsString(CacheKey.KEY_USER) ?: return@Observer
 
                     user = Gson().fromJson(userString, User::class.java)
@@ -44,11 +47,20 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
                     } else {
                         raceFail(mCommand[2], mCommand[3], mCommand[4])
                     }
-                } catch (e: Exception) {
 
                 }
+                Command.EAGER_RESULT -> {
+                    val subProgress = Integer.parseInt(mCommand[4])
+                    val count = BaseApp.instance.kRespository.getPeople()
+                    Log.e("xiaofu", "当前人数：$count,当前点赞人数：$subProgress")
+                    binding.responderSuccessBePraised.max = count - 1
+                    binding.responderSuccessBePraised.progress = subProgress
+                }
             }
+        } catch (e: Exception) {
+
         }
+
     }
 
     override fun getLayoutRes(): Int = R.layout.fragment_race_hand
@@ -59,6 +71,8 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
                 .observe(this, observer)
 
         cache = ACache.get(activity)
+
+
     }
 
     override fun bindListener(activity: FragmentActivity, binding: FragmentRaceHandBinding) {
@@ -108,6 +122,9 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
                 LiveEventBus.get()
                         .with(Command.COMMAND, String::class.java)
                         .post(subFormat.format(Command.EAGER_PRAISE, user.ID, id))
+
+                requireActivity().toast("点赞成功！")
+                binding.btnSub.visibility = View.GONE
             }
         }
     }

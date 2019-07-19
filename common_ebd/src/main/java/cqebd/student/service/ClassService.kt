@@ -16,6 +16,7 @@ import com.open.net.client.structures.IConnectListener
 import com.open.net.client.structures.TcpAddress
 import com.open.net.client.structures.message.Message
 import com.orhanobut.logger.Logger
+import cqebd.student.BaseApp
 import cqebd.student.commandline.CacheKey
 import cqebd.student.commandline.Command
 import cqebd.student.vo.MyIntents
@@ -47,7 +48,7 @@ class ClassService : Service() {
 
         when (sCommand[0]) {
             Command.EAGER_ANSWER -> {
-                if (::user.isInitialized){
+                if (::user.isInitialized) {
                     send(Command.EAGER_ANSWER.plus(" ${user.ID}"))// 这里空格+学生ID
                 }
             }
@@ -57,8 +58,13 @@ class ClassService : Service() {
             Command.STUDENT_INFO_UPDATE -> {
                 updateUserInfo(it)
             }
-            Command.ANSWER_SUBMIT,Command.EAGER_PRAISE -> {
+            Command.ANSWER_SUBMIT, Command.EAGER_PRAISE,
+            Command.MOUSE_CLICK, Command.MOUSE_MOVE,
+            Command.MOUSE_DOUBLE -> {
                 send(it)
+            }
+            Command.ANSWER_PIC -> {
+                uploadFTP(sCommand[2], sCommand[3])
             }
         }
     }
@@ -70,13 +76,13 @@ class ClassService : Service() {
     private val messageProcessor = object : BaseMessageProcessor() {
         override fun onReceiveMessages(mClient: BaseClient?, mQueen: LinkedList<Message>?) {
             mQueen?.forEach {
+                Log.e("command", "偏移量：${it.offset},长度:${it.length}")
                 val s = String(it.data, it.offset, it.length, Charset.forName("UTF-8"))
-                Log.e("command",s)
+                Log.e("command", s)
                 executeLine(s)
             }
         }
     }
-
 
     override fun onCreate() {
         super.onCreate()
@@ -84,8 +90,8 @@ class ClassService : Service() {
         cache = ACache.get(applicationContext)
         // 程序内部通信
         LiveEventBus.get()
-                .with(Command.COMMAND, String::class.java)
-                .observeForever(observer)
+            .with(Command.COMMAND, String::class.java)
+            .observeForever(observer)
 
         // 客户端初始化
         mClient = NioClient(messageProcessor, object : IConnectListener {
@@ -97,8 +103,9 @@ class ClassService : Service() {
                 }
 
                 ARouter.getInstance()
-                        .build("/app/main")
-                        .navigation()
+                    .build("/app/main")
+                    .withBoolean("classing", true)
+                    .navigation()
 
                 MyIntents.classStatus = true
                 HRA_API.getHRA_API(applicationContext).setStatusBarDropDisable(applicationContext)
@@ -112,31 +119,30 @@ class ClassService : Service() {
                 HRA_API.getHRA_API(applicationContext).setStatusBarDropEnable(applicationContext)
                 HRA_API.getHRA_API(applicationContext).setHomeVisible(applicationContext)
                 HRA_API.getHRA_API(applicationContext).setRecentVisible(applicationContext)
+
+                LiveEventBus.get().with(Command.COMMAND).post(Command.CLASS_END)
             }
         })
 
         // 心跳包去连接
         taskDisposable = Observable.interval(0, 3, TimeUnit.SECONDS)
-                .subscribeOn(Schedulers.io())
-                .observeOn(Schedulers.io())
-                .subscribe {
-                    Log.w("-socket-", "延迟发送消息")
-                    if (!mClient.isConnected) {// 未连接
-                        Log.w("-socket-", "未连接，准备连接")
-                        val userString = cache.getAsString(CacheKey.KEY_USER) ?: return@subscribe
-                        Log.w("-socket-", "未连接，准备连接 用户：$userString")
-                        try {
-                            user = Gson().fromJson(userString, User::class.java)
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .subscribe {
+                if (!mClient.isConnected) {// 未连接
+                    val userString = cache.getAsString(CacheKey.KEY_USER) ?: return@subscribe
+                    try {
+                        user = Gson().fromJson(userString, User::class.java)
 
-                            HRA_API.getHRA_API(applicationContext).setStatusBarDropEnable(applicationContext)
-                            HRA_API.getHRA_API(applicationContext).setHomeVisible(applicationContext)
-                            HRA_API.getHRA_API(applicationContext).setRecentVisible(applicationContext)
-                            connectSocket()
-                        } catch (e: Exception) {
+                        HRA_API.getHRA_API(applicationContext).setStatusBarDropEnable(applicationContext)
+                        HRA_API.getHRA_API(applicationContext).setHomeVisible(applicationContext)
+                        HRA_API.getHRA_API(applicationContext).setRecentVisible(applicationContext)
+                        connectSocket()
+                    } catch (e: Exception) {
 
-                        }
                     }
                 }
+            }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -154,8 +160,8 @@ class ClassService : Service() {
             mClient.disconnect()
         }
         LiveEventBus.get()
-                .with(Command.COMMAND, String::class.java)
-                .removeObserver(observer)
+            .with(Command.COMMAND, String::class.java)
+            .removeObserver(observer)
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -172,21 +178,40 @@ class ClassService : Service() {
             Log.w("xiaofu", it)
         }
         when (mCommand[0]) {
+            Command.LOGIN_INFO_UPDATE -> {// 通知当前在线人数
+                try {
+                    val count = Integer.parseInt(mCommand[2])
+//                    MyIntents.currentCount = count
+                    BaseApp.instance.kRespository.setPeopleCout(count)
+                    Log.e("xiaofu", "当前人数：" + BaseApp.instance.kRespository.getPeople())
+                } catch (e: Exception) {
+
+                }
+            }
+            Command.LOGIN_INFO_ADD -> {// 有人进入
+                BaseApp.instance.kRespository.addPeople()
+//                KMyIntent.currentCount++
+            }
+            Command.LOGIN_INFO_REMOVE -> {// 有人离开房间
+                BaseApp.instance.kRespository.removePeople()
+//                KMyIntent.currentCount--
+            }
             Command.LOGIN_ROOM_RESULT -> {// 返回登陆结果
 
             }
             Command.LOCK_SCREEN -> {// 锁屏
                 ARouter.getInstance()
-                        .build("/app/aty/lockScreen")
-                        .navigation()
+                    .build("/app/aty/lockScreen")
+                    .navigation()
             }
             Command.ANSWER_START -> {// 开始答题
                 ARouter.getInstance()
-                        .build("/app/aty/answer")
-                        .withString("commands", line)
-                        .navigation()
+                    .build("/app/aty/answer")
+                    .withString("commands", line)
+                    .navigation()
             }
-            Command.UNLOCK_SCREEN, Command.EAGER_ANSWER_START, Command.EAGER_ANSWER_STOP -> {// 解锁,抢答，抢答结束
+            Command.UNLOCK_SCREEN, Command.EAGER_ANSWER_START, Command.EAGER_ANSWER_STOP,
+            Command.BROADCAST_STOP, Command.SHARE_DESKTOP, Command.SHARE_DESK_STOP, Command.DEMON_STOP -> {// 解锁,抢答，抢答结束
                 LiveEventBus.get().with(Command.COMMAND).post(mCommand[0])
             }
             Command.SHUTDOWN -> {
@@ -195,6 +220,21 @@ class ClassService : Service() {
                 HRA_API.getHRA_API(applicationContext).setRecentVisible(applicationContext)
 
                 HRA_API.getHRA_API(applicationContext).setDeviceShutDown(applicationContext)
+            }
+            Command.BROADCAST -> {
+                ARouter.getInstance()
+                    .build("/app/aty/remote_java")
+                    .navigation()
+            }
+            Command.DEMON_START -> {
+                ARouter.getInstance()
+                    .build("/app/aty/remote_java")
+                    .withBoolean("isControl", true)
+                    .navigation()
+            }
+            Command.PRAISE -> {
+                cache.put(CacheKey.TOTAL_SUB, mCommand[3])
+                LiveEventBus.get().with(Command.COMMAND).post(line)
             }
             else -> {
                 Log.e("xiaofu", "转发了消息：$mCommand")
@@ -215,53 +255,62 @@ class ClassService : Service() {
      */
     private fun connectSocket() {
         val cache = ACache.get(this)
-        Log.e("xiaofu","连接  socket")
-        val ip = cache.getAsString(CacheKey.IP_ADDRESS) ?: return
-        Log.e("xiaofu","连接  socket = ${ip}")
-        mClient.setConnectAddress(arrayOf(TcpAddress(ip, 2020)))
-        mClient.connect()
+        Log.e("xiaofu", "连接  socket")
+        val ip = cache.getAsString(CacheKey.IP_ADDRESS)
+
+        if (ip == null) {
+            val ipAuto = cache.getAsString(CacheKey.IP_ADDRESS_AUTO) ?: return
+            Log.e("xiaofu", "连接  socket = $ipAuto")
+            mClient.setConnectAddress(arrayOf(TcpAddress(ipAuto, 2020)))
+            mClient.connect()
+        } else {
+            Log.e("xiaofu", "连接  socket = $ip")
+            mClient.setConnectAddress(arrayOf(TcpAddress(ip, 2020)))
+            mClient.connect()
+        }
     }
 
     /**
      * FTP 服务
      */
-    private fun uploadFTP(filePath: String) {
+    private fun uploadFTP(filePath: String, name: String) {
         try {
+            Log.w("ftp", "进入FTP，文件路径：$filePath")
             val cache = ACache.get(this)
             val ip = cache.getAsString(CacheKey.IP_ADDRESS) ?: return
-
+            Log.w("ftp", "进入FTP，文件路径：$filePath")
             FTPUploadRequest(applicationContext, ip, 17171)
-                    .setUsernameAndPassword("ftpd", "password")
-                    .addFileToUpload(filePath, "")
-                    .setMaxRetries(2)
-                    .setDelegate(object : UploadStatusDelegate {
-                        override fun onCancelled(context: Context?, uploadInfo: UploadInfo?) {
-                            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-                        }
+                .setUsernameAndPassword("ftpd", "password")
+                .addFileToUpload(filePath, "/smartClass/Record/" + getFtpRemotePath() + name + ".png")
+                .setMaxRetries(2)
+                .setDelegate(object : UploadStatusDelegate {
+                    override fun onCancelled(context: Context?, uploadInfo: UploadInfo?) {
+                        Log.w("ftp", "ftp 取消")
+                    }
 
-                        override fun onProgress(context: Context?, uploadInfo: UploadInfo?) {
-                        }
+                    override fun onProgress(context: Context?, uploadInfo: UploadInfo?) {
+                        Log.w("ftp", "ftp onProgress")
+                    }
 
+                    override fun onError(
+                        context: Context?,
+                        uploadInfo: UploadInfo?,
+                        serverResponse: ServerResponse?,
+                        exception: java.lang.Exception?
+                    ) {
+                        Log.w("ftp", "ftp 错误:" + exception?.message)
+                    }
 
-                        override fun onError(
-                                context: Context?,
-                                uploadInfo: UploadInfo?,
-                                serverResponse: ServerResponse?,
-                                exception: java.lang.Exception?
-                        ) {
+                    override fun onCompleted(
+                        context: Context?,
+                        uploadInfo: UploadInfo?,
+                        serverResponse: ServerResponse?
+                    ) {
+                        Log.w("ftp", "ftp 完成")
+                    }
 
-                        }
-
-                        override fun onCompleted(
-                                context: Context?,
-                                uploadInfo: UploadInfo?,
-                                serverResponse: ServerResponse?
-                        ) {
-
-                        }
-
-                    })
-                    .startUpload()
+                })
+                .startUpload()
         } catch (e: Exception) {
 
         }
@@ -269,7 +318,7 @@ class ClassService : Service() {
 
     private fun getFtpRemotePath(): String {
         val date = Date(System.currentTimeMillis())
-        val format = SimpleDateFormat("/yyyy/MM", Locale.CHINA)
+        val format = SimpleDateFormat("/yyyy/MM/dd/", Locale.CHINA)
         return format.format(date)
     }
 
@@ -279,7 +328,7 @@ class ClassService : Service() {
         val sCommand = line.split(" ")
         try {
             if (sCommand[3].contains("localPath//:")) {// 本地图片，需要调用FTP
-                uploadFTP(sCommand[3].replace("localPath//:", ""))
+                uploadFTP(sCommand[3].replace("localPath//:", ""), "aaa")
             } else {
                 send(line)
             }

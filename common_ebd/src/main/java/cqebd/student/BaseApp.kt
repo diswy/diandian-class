@@ -14,6 +14,7 @@ import com.orhanobut.logger.Logger
 import com.orhanobut.logger.PrettyFormatStrategy
 import cqebd.student.di.DaggerAppComponent
 import cqebd.student.receiver.WifiBroadcastReceiver
+import cqebd.student.repository.KRepository
 import cqebd.student.service.ClassService
 import net.gotev.uploadservice.UploadService
 import xiaofu.lib.base.BuildConfig
@@ -43,6 +44,9 @@ class BaseApp : Application() {
      */
     @Inject
     lateinit var factory: ViewModelProvider.Factory
+
+    @Inject
+    lateinit var kRespository: KRepository
 
     override fun onCreate() {
         super.onCreate()

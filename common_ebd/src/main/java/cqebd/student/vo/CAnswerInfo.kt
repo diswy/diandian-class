@@ -17,5 +17,6 @@ enum class CAnswerType(val value: Int) {
     MULTIPLE(2),
     TRUE_OR_FALSE(3),
     BLANK(4),
-    SUBJECTIVE(5)
+    SUBJECTIVE(5),
+    PHOTO(6)
 }

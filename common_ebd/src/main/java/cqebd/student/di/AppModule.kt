@@ -15,6 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import cqebd.student.BaseApp
+import cqebd.student.repository.KRepository
 import xiaofu.lib.cache.ACache
 import xiaofu.lib.network.converter.LiveDataCallAdapterFactory
 import xiaofu.lib.network.converter.StringConverterFactory
@@ -117,6 +118,12 @@ class AppModule {
     @Provides
     fun provideWorkDao(db: EbdDb): WorkDao {
         return db.workDao()
+    }
+
+    @Singleton
+    @Provides
+    fun provideKRepository():KRepository{
+        return KRepository()
     }
 
 }

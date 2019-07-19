@@ -29,12 +29,14 @@ class LockScreenActivity : BaseBindActivity<ActivityLockScreenBinding>() {
 
     override fun isFullScreen(): Boolean = true
 
+    override fun isKeepScreenOn(): Boolean = true
+
     override fun getLayoutRes(): Int = R.layout.activity_lock_screen
 
     override fun initialize(binding: ActivityLockScreenBinding) {
         LiveEventBus.get()
-                .with(Command.COMMAND, String::class.java)
-                .observe(this, observer)
+            .with(Command.COMMAND, String::class.java)
+            .observe(this, observer)
 
 
         viewModel = ViewModelProviders.of(this, BaseApp.instance.factory).get(ClassViewModel::class.java)

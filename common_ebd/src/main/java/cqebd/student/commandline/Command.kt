@@ -8,6 +8,7 @@ package cqebd.student.commandline
 object Command {
     const val COMMAND = "COMMAND"
     const val END = "\r\n"
+    const val CLASS_END = "CLASS_END"
 
     const val CONNECT_IP = "CONNECT_IP"
 
@@ -18,6 +19,22 @@ object Command {
     const val ANSWER_SUBMIT = "ANSWER_SUBMIT"
     const val EAGER_ANSWER = "EAGER_ANSWER"// 抢答
     const val EAGER_PRAISE = "EAGER_PRAISE"// 点赞
+    const val EAGER_RESULT = "EAGER_RESULT"// 点赞结果
+
+    const val PRAISE = "PRAISE"// 累计点赞
+
+    const val SCREENS_REQUEST = "SCREENS_REQUEST"// 请求远程桌面
+    const val SCREENS_RESPONSE = "SCREEN_RESPONSE"// 收到远程桌面
+    const val SHARE_HOT = "SHARE_HOT"// 发送
+
+    const val SHARE_DESKTOP = "SHARE_DESKTOP"// 学生飞屏开始
+    const val SHARE_DESK_STOP = "SHARE_DESK_STOP"// 学生飞屏结束
+
+    const val MOUSE_CLICK = "MOUSE_CLICK"// 远程控制 单点
+    const val MOUSE_MOVE = "MOUSE_MOVE"// 远程控制 单点
+    const val MOUSE_DOUBLE = "MOUSE_DOUBLE"// 远程控制 单点
+
+    const val ANSWER_PIC = "ANSWER_PIC"// 远程控制 发送图片
 
 
     //--------T->S--------
@@ -31,6 +48,19 @@ object Command {
     const val LOCK_SCREEN = "LOCK_SCREEN"// 锁屏
     const val UNLOCK_SCREEN = "UNLOCK_SCREEN"// 解锁
     const val SHUTDOWN = "SHUTDOWN"// 关机
+
+    const val LOGIN_INFO_UPDATE = "ROOM_MEMBER_UPDATE"// 当前人数
+    const val LOGIN_INFO_ADD = "ROOM_MEMBER_ADD"// 新进房间人数，每次+1
+    const val LOGIN_INFO_REMOVE = "ROOM_MEMBER_REMOVE"// 离开房间人数，每次-1
+
+
+    const val BROADCAST = "BROADCAST"// 老师广播桌面
+    const val BROADCAST_STOP = "BROADCAST_STOP"// 停止广播
+
+    const val DEMON_START = "DEMON_START"// 学生演示
+    const val DEMON_STOP = "DEMON_STOP"// 学生演示结束
+
+    const val SEND_FILE = "SEND_FILE"// 发送文件
 
 
     //--------内部通信--------

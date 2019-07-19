@@ -3,11 +3,16 @@ package com.cqebd.live.ui.aty
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.graphics.Bitmap
+import android.net.Uri
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.cqebd.live.R
 import com.cqebd.live.databinding.ActivityUserInfoBinding
 import com.cqebd.live.databinding.LayoutModifyUserInfoBinding
 import com.jeremyliao.liveeventbus.LiveEventBus
+import com.qingmei2.rximagepicker.core.RxImagePicker
+import com.qingmei2.rximagepicker_extension.MimeType
+import com.qingmei2.rximagepicker_extension_zhihu.ZhihuConfigurationBuilder
 import com.tbruyelle.rxpermissions2.RxPermissions
 import com.yalantis.ucrop.UCrop
 import cqebd.student.commandline.CacheKey
@@ -17,9 +22,11 @@ import xiaofu.lib.base.activity.BaseBindActivity
 import xiaofu.lib.cache.ACache
 import xiaofu.lib.inline.loadUrl
 import xiaofu.lib.picture.FileHelper
+import xiaofu.lib.picture.ZhihuImagePicker
 import xiaofu.lib.picture.singleImagePicker
 import xiaofu.lib.tools.getVersionName
 import xiaofu.lib.view.dialog.FancyDialogFragment
+import java.io.File
 import java.util.*
 
 @Route(path = "/app/aty/user_info")
@@ -59,9 +66,7 @@ class UserInfoActivity : BaseBindActivity<ActivityUserInfoBinding>() {
             RxPermissions(this).request(Manifest.permission.CAMERA)
                     .subscribe { permission ->
                         if (permission) {
-                            singleImagePicker()?.let {
-                                mDisposablePool.add(it)
-                            }
+                            choosePic()
                         } else {
                             toast("您拒绝了拍照权限，无法使用相机")
                         }
@@ -107,6 +112,24 @@ class UserInfoActivity : BaseBindActivity<ActivityUserInfoBinding>() {
         } else if (resultCode == UCrop.RESULT_ERROR) {
             toast("请求错误：请重新拍照，或换张图片")
         }
+    }
+
+    private fun choosePic() {
+        val imagePicker = RxImagePicker.create(ZhihuImagePicker::class.java)
+        val d = imagePicker.openGalleryAsDracula(
+            this,
+            ZhihuConfigurationBuilder(MimeType.ofImage(), false)
+                .capture(true)
+                .maxSelectable(1)
+                .spanCount(4)
+                .theme(R.style.Zhihu_Dracula)
+                .build()
+        )
+            .subscribe {
+//                currentPath = FileHelper.getFileFromUri(it.uri, this@AnswerActivity).absolutePath
+//                binding.ivQuestion.loadUrl(this@AnswerActivity, it.uri)
+            }
+        mDisposablePool.add(d)
     }
 
 }

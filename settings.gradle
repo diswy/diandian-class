@@ -1,6 +1,7 @@
 include ':app'
 include ':common_ebd'
 include ':component_picture_selector'
+include ':component_player'
 include ':net_socket_client'
 include ':lib_base'
 

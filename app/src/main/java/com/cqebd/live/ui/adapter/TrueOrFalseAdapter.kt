@@ -37,8 +37,8 @@ class TrueOrFalseAdapter : BaseQuickAdapter<Int, BaseViewHolder>(R.layout.answer
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
             try {
                 when (checkedId) {
-                    R.id.true_or_false_true -> answers[helper.layoutPosition].Content = "TRUE"
-                    R.id.true_or_false_false -> answers[helper.layoutPosition].Content = "FALSE"
+                    R.id.true_or_false_true -> answers[helper.layoutPosition].Content = "对"
+                    R.id.true_or_false_false -> answers[helper.layoutPosition].Content = "错"
                 }
             } catch (e: Exception) {
 

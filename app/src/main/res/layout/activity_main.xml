@@ -74,10 +74,10 @@
 			android:layout_width="213px"
 			android:layout_height="213px"
 			android:layout_marginTop="145px"
-			tools:src="@drawable/ic_student_index_photo"
 			app:layout_constraintEnd_toEndOf="@id/stu_index_info_bg"
 			app:layout_constraintStart_toStartOf="@id/stu_index_info_bg"
-			app:layout_constraintTop_toTopOf="@id/stu_index_info_bg" />
+			app:layout_constraintTop_toTopOf="@id/stu_index_info_bg"
+			tools:src="@drawable/ic_student_index_photo" />
 
 		<TextView
 			android:id="@+id/stu_index_info_name"
@@ -97,19 +97,20 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="11px"
-			android:text="5班"
 			android:textColor="@color/white"
 			android:textSize="32px"
 			app:layout_constraintEnd_toEndOf="@+id/stu_index_info_bg"
 			app:layout_constraintStart_toStartOf="@+id/stu_index_info_bg"
-			app:layout_constraintTop_toBottomOf="@id/stu_index_info_name" />
+			app:layout_constraintTop_toBottomOf="@id/stu_index_info_name"
+			tools:text="5班" />
 
 		<TextView
+			android:visibility="gone"
 			android:id="@+id/stu_index_info_grade_img"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="74px"
-			android:layout_marginTop="109px"
+			android:layout_marginTop="120px"
 			android:gravity="center"
 			android:text="这里要用星星显示分数"
 			android:textColor="@color/white"
@@ -122,9 +123,11 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginStart="12px"
+			android:layout_marginEnd="8dp"
 			android:text="0分"
 			android:textColor="@color/white"
 			android:textSize="26px"
+			app:layout_constraintEnd_toEndOf="@+id/stu_index_info_bg"
 			app:layout_constraintStart_toEndOf="@id/stu_index_info_grade_img"
 			app:layout_constraintTop_toTopOf="@id/stu_index_info_grade_img"
 			tools:text="0分" />
@@ -188,6 +191,21 @@
 			app:layout_constraintEnd_toEndOf="@id/stu_index_bag_bg"
 			app:layout_constraintTop_toBottomOf="@id/stu_index_bag_icon" />
 
+		<TextView
+			android:id="@+id/tv_hint_status"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="80px"
+			android:text="正在上课，请认真听讲"
+			android:textColor="#ff0000"
+			android:textSize="20sp"
+			android:textStyle="bold"
+			android:visibility="gone"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			tools:visibility="visible" />
+
 		<FrameLayout
 			android:id="@+id/container_main"
 			android:layout_width="match_parent"
@@ -197,6 +215,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
+
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
