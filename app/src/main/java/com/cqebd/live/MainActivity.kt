@@ -211,8 +211,6 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
 
         binding.stuIndexBagBg.setOnClickListener {
             doStartApplicationWithPackageName("org.qimon.launcher6")
-
-//            FlyScreenService.stopScreenShot()
         }
 
         binding.stuIndexInfoBg.setOnClickListener {
@@ -540,16 +538,18 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe({
-                val host = "224.0.0.1"
-                val ds = MulticastSocket(8003)
+                val host = "239.0.0.1"
+                val ds = MulticastSocket(8002)
                 val receiveAddress = InetAddress.getByName(host)
                 ds.joinGroup(receiveAddress)
-                val mBuffer = ByteArray(1024)
-                val dp = DatagramPacket(mBuffer, 1024, receiveAddress, 8003)
+                val mBuffer = ByteArray(128)
+                val dp = DatagramPacket(mBuffer, 128, receiveAddress, 8002)
                 while (udpThreadFlag) {
+                    Log.d("xiaofu","等待接收")
                     try {
                         ds.receive(dp)
                         val command = String(mBuffer, 0, dp.length)
+                        Log.d("xiaofu","命令：$command")
                         val commands = command.split(" ")
                         if (commands.size >= 3) {
                             val ip = commands[2]
@@ -558,6 +558,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
+                        Log.d("xiaofu","错误：${e.message}")
                     }
                 }
             }, {})

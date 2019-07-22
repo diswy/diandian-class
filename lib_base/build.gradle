@@ -96,6 +96,9 @@ dependencies {
     // FTP
     api 'net.gotev:uploadservice-ftp:3.5.2'
 
+    api 'ywl.ywl5320:wlmedia:1.0.0-beta17'
+
+
     kapt deps.kapt.arouter_compiler
     kapt deps.kapt.databinding_compiler
     kapt deps.kapt.glide
@@ -103,6 +106,5 @@ dependencies {
     kapt deps.kapt.room
     // 组件
     api project(':component_picture_selector')
-    api project(':component_player')
     api files('libs/HRA_API_RK3368H_7.1__201809111025.jar')
 }

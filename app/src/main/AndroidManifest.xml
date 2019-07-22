@@ -25,7 +25,8 @@
         </provider>
 
 
-        <activity android:name=".ui.aty.RemotePlayerActivity">
+        <activity android:name=".ui.aty.RemotePlayerActivity"
+            android:screenOrientation="landscape">
         </activity>
         <activity
                 android:name=".ui.aty.MyFileActivity"

@@ -223,12 +223,12 @@ class ClassService : Service() {
             }
             Command.BROADCAST -> {
                 ARouter.getInstance()
-                    .build("/app/aty/remote_java")
+                    .build("/app/aty/remote_player")
                     .navigation()
             }
             Command.DEMON_START -> {
                 ARouter.getInstance()
-                    .build("/app/aty/remote_java")
+                    .build("/app/aty/remote_player")
                     .withBoolean("isControl", true)
                     .navigation()
             }
