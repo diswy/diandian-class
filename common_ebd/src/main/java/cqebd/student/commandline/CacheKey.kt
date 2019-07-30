@@ -12,7 +12,4 @@ object CacheKey {
     const val KEY_NICK = "KEY_NICK"// 用户昵称
 
     const val TOTAL_SUB = "TOTAL_SUB"
-
-    const val IP_ADDRESS_AUTO = "IP_ADDRESS_AUTO"// 自动发现的IP 优先级最低
-
 }

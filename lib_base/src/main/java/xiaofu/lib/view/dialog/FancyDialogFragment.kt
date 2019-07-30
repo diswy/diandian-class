@@ -1,6 +1,7 @@
 package xiaofu.lib.view.dialog
 
 import android.content.Context
+import android.content.DialogInterface
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
@@ -99,5 +100,17 @@ class FancyDialogFragment : DialogFragment() {
         val binding: ViewDataBinding = DataBindingUtil.inflate(inflater, mLayoutRes, container, false)
         mListener?.invoke(this, binding)
         return binding.root
+    }
+
+    private var onDismissListener: (() -> Unit)? = null
+
+    fun setDismissListener(listener: () -> Unit): FancyDialogFragment {
+        onDismissListener = listener
+        return this
+    }
+
+    override fun onDismiss(dialog: DialogInterface?) {
+        super.onDismiss(dialog)
+        onDismissListener?.invoke()
     }
 }

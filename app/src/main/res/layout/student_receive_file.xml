@@ -14,7 +14,7 @@
 		android:layout_height="wrap_content"
 		android:drawablePadding="32px"
 		android:gravity="center"
-		android:textColor="@color/color222"
+		android:textColor="@color/color333"
 		tools:text="我是文件" />
 
 </LinearLayout>

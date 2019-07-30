@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:background="@drawable/bg_paint_option"
+	android:orientation="vertical"
+	android:padding="48px"
+	tools:ignore="PxUsage,HardcodedText">
+
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="画笔颜色"
+		android:textColor="#c1bdbd" />
+
+	<RadioGroup
+		android:id="@+id/rg_paint_color"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="16px"
+		android:orientation="horizontal">
+
+		<RadioButton
+			android:id="@+id/rb_color_red"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:button="@drawable/select_color_red"
+			android:checked="true" />
+
+		<RadioButton
+			android:id="@+id/rb_color_yellow"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:button="@drawable/select_color_yellow" />
+
+		<RadioButton
+			android:id="@+id/rb_color_green"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:button="@drawable/select_color_green" />
+
+		<RadioButton
+			android:id="@+id/rb_color_blue"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:button="@drawable/select_color_blue" />
+
+		<RadioButton
+			android:id="@+id/rb_color_purple"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:button="@drawable/select_color_purple" />
+
+		<RadioButton
+			android:id="@+id/rb_color_black"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:button="@drawable/select_color_black" />
+
+	</RadioGroup>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="48px"
+		android:text="画笔形状"
+		android:textColor="#c1bdbd" />
+
+	<RadioGroup
+		android:id="@+id/rg_paint_shape"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:padding="8dp">
+
+		<RadioButton
+			android:id="@+id/rb_shape_pen"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:button="@null"
+			android:checked="true"
+			android:text="钢 笔"
+			android:textColor="@drawable/select_paint_shape"
+			android:textSize="16sp" />
+
+		<RadioButton
+			android:id="@+id/rb_shape_line"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:button="@null"
+			android:text="直 线"
+			android:textColor="@drawable/select_paint_shape"
+			android:textSize="16sp" />
+
+		<RadioButton
+			android:id="@+id/rb_shape_rect"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:button="@null"
+			android:text="矩 形"
+			android:textColor="@drawable/select_paint_shape"
+			android:textSize="16sp" />
+
+		<RadioButton
+			android:id="@+id/rb_shape_circle"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:button="@null"
+			android:text="圆 形"
+			android:textColor="@drawable/select_paint_shape"
+			android:textSize="16sp" />
+
+	</RadioGroup>
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="48px"
+		android:text="画笔大小"
+		android:textColor="#c1bdbd" />
+
+	<SeekBar
+		android:id="@+id/paint_seek_bar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="32px"
+		android:max="50"
+		android:maxHeight="4dp"
+		android:minHeight="4dp"
+		android:progress="16"
+		android:progressDrawable="@drawable/paint_seekbar"
+		android:thumb="@drawable/ic_paint_seek" />
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="24px"
+		android:orientation="horizontal">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="小"
+			android:textColor="#c1bdbd"
+			android:textSize="12sp" />
+
+		<Space
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="中"
+			android:textColor="#c1bdbd"
+			android:textSize="12sp" />
+
+		<Space
+			android:layout_width="0dp"
+			android:layout_height="match_parent"
+			android:layout_weight="1" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="大"
+			android:textColor="#c1bdbd"
+			android:textSize="12sp" />
+
+	</LinearLayout>
+
+</LinearLayout>

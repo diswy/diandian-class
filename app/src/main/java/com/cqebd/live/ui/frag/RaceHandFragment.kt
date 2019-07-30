@@ -13,8 +13,6 @@ import com.jeremyliao.liveeventbus.LiveEventBus
 import cqebd.student.BaseApp
 import cqebd.student.commandline.CacheKey
 import cqebd.student.commandline.Command
-import cqebd.student.vo.KMyIntent
-import cqebd.student.vo.MyIntents
 import cqebd.student.vo.User
 import org.jetbrains.anko.toast
 import xiaofu.lib.base.fragment.BaseBindFragment
@@ -55,6 +53,7 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
                     Log.e("xiaofu", "当前人数：$count,当前点赞人数：$subProgress")
                     binding.responderSuccessBePraised.max = count - 1
                     binding.responderSuccessBePraised.progress = subProgress
+                    binding.tvSubProgress.text = "${subProgress}/${count - 1}"
                 }
             }
         } catch (e: Exception) {
@@ -71,8 +70,6 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
                 .observe(this, observer)
 
         cache = ACache.get(activity)
-
-
     }
 
     override fun bindListener(activity: FragmentActivity, binding: FragmentRaceHandBinding) {
@@ -98,7 +95,7 @@ class RaceHandFragment : BaseBindFragment<FragmentRaceHandBinding>() {
         binding.responderSuccessStuPhoto.visibility = View.VISIBLE
         binding.responderSuccessStuName.visibility = View.VISIBLE
         binding.responderSuccessImg.visibility = View.VISIBLE
-        binding.responderSuccessBePraised.visibility = View.VISIBLE
+        binding.responderSuccessLl.visibility = View.VISIBLE
 
         binding.responderSuccessStuName.text = name
         binding.responderSuccessStuPhoto.loadUrl(this, head)

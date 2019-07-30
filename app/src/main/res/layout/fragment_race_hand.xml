@@ -75,31 +75,38 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/responder_success_stu_name" />
 
-		<ProgressBar
-			tools:visibility="visible"
-			android:id="@+id/responder_success_be_praised"
-			style="@android:style/Widget.ProgressBar.Horizontal"
+		<LinearLayout
+			android:gravity="center_vertical"
+			android:id="@+id/responder_success_ll"
 			android:layout_width="800px"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="50px"
-			android:progressDrawable="@drawable/progress_bg"
+			android:orientation="horizontal"
 			android:visibility="gone"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/responder_success_img" />
+			app:layout_constraintTop_toBottomOf="@id/responder_success_img"
+			tools:visibility="visible">
 
-		<!--<TextView-->
-		<!--android:id="@+id/responder_success_be_praised"-->
-		<!--android:layout_width="wrap_content"-->
-		<!--android:layout_height="wrap_content"-->
-		<!--android:layout_marginTop="50px"-->
-		<!--android:gravity="center"-->
-		<!--android:text="这里要用进度条显示点赞数"-->
-		<!--android:textColor="@color/date_color"-->
-		<!--android:textSize="26px"-->
-		<!--app:layout_constraintEnd_toEndOf="parent"-->
-		<!--app:layout_constraintStart_toStartOf="parent"-->
-		<!--app:layout_constraintTop_toBottomOf="@id/responder_success_img" />-->
+			<ProgressBar
+				android:id="@+id/responder_success_be_praised"
+				style="@android:style/Widget.ProgressBar.Horizontal"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:progressDrawable="@drawable/progress_bg" />
+
+			<TextView
+				android:id="@+id/tv_sub_progress"
+				android:textColor="@color/color333"
+				android:layout_margin="16px"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				tools:text="1/30" />
+
+
+		</LinearLayout>
+
 
 		<TextView
 			android:id="@+id/responder_fail_prise"

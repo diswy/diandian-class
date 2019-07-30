@@ -23,14 +23,15 @@
 		android:layout_weight="1" />
 
 	<RadioButton
-		android:layout_marginStart="16dp"
 		android:id="@+id/true_or_false_true"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:background="@drawable/answer_single_choice"
+		android:layout_marginStart="16dp"
+		android:background="@drawable/answer_true_false"
 		android:button="@null"
 		android:gravity="center"
-		android:text="√" />
+		android:text="√"
+		android:textColor="@drawable/answer_tv_color" />
 
 	<Space
 		android:layout_width="0dp"
@@ -41,10 +42,11 @@
 		android:id="@+id/true_or_false_false"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:background="@drawable/answer_single_choice"
+		android:background="@drawable/answer_true_false"
 		android:button="@null"
 		android:gravity="center"
-		android:text="x" />
+		android:text="x"
+		android:textColor="@drawable/answer_tv_color" />
 
 	<Space
 		android:layout_width="0dp"

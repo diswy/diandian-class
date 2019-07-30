@@ -1,9 +1,6 @@
 package com.cqebd.live.socketTool
 
 import android.os.Environment
-import android.util.Log
-import com.cqebd.live.TCommand
-import com.cqebd.live.TImg
 import cqebd.student.commandline.Command
 import cqebd.student.tools.ByteTools
 
@@ -54,18 +51,5 @@ object KTool {
         val name = ByteTools.Int2Bytes_LE(count)
         val current = ByteTools.Int2Bytes_LE(currentSize)
         return cmdRequest + name + cmdEnd + current
-    }
-
-
-    fun outputFile(cmdList: List<TCommand>, imgList: List<TImg>) {
-//        cmdList.sortedBy {
-//            it.pos
-//        }
-//        imgList.sortedBy {
-//            it.picPos
-//        }
-
-
-
     }
 }

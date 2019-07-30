@@ -9,29 +9,26 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
-		<TextView
-			android:id="@+id/header"
-			android:layout_width="0dp"
+		<androidx.appcompat.widget.Toolbar
+			android:id="@+id/mainToolbar"
+			android:layout_width="match_parent"
 			android:layout_height="100px"
 			android:background="@color/colorPrimary"
-			android:gravity="center"
-			android:text="互动课堂"
-			android:textColor="@color/white"
-			android:textSize="22sp"
-			android:textStyle="bold"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent" />
+			app:layout_constraintTop_toTopOf="parent">
 
-		<ImageView
-			android:id="@+id/btn_qr_scan"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginEnd="32dp"
-			android:src="@drawable/ic_qr_scan"
-			app:layout_constraintBottom_toBottomOf="@+id/header"
-			app:layout_constraintEnd_toEndOf="@+id/header"
-			app:layout_constraintTop_toTopOf="@+id/header" />
+			<TextView
+				android:id="@+id/btn_system"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center"
+				android:text="互动课堂"
+				android:textColor="@color/white"
+				android:textSize="22sp"
+				android:textStyle="bold" />
+
+		</androidx.appcompat.widget.Toolbar>
 
 		<TextView
 			android:id="@+id/stu_index_datetime"
@@ -43,7 +40,7 @@
 			android:textColor="@color/date_color"
 			android:textSize="100px"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/header"
+			app:layout_constraintTop_toBottomOf="@id/mainToolbar"
 			tools:text="14:24" />
 
 		<TextView
@@ -67,7 +64,7 @@
 			android:layout_marginTop="109px"
 			android:src="@drawable/ic_student_index_info"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/header" />
+			app:layout_constraintTop_toBottomOf="@id/mainToolbar" />
 
 		<de.hdodenhof.circleimageview.CircleImageView
 			android:id="@+id/stu_index_info_photo"
@@ -105,7 +102,6 @@
 			tools:text="5班" />
 
 		<TextView
-			android:visibility="gone"
 			android:id="@+id/stu_index_info_grade_img"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -115,6 +111,7 @@
 			android:text="这里要用星星显示分数"
 			android:textColor="@color/white"
 			android:textSize="26px"
+			android:visibility="gone"
 			app:layout_constraintStart_toStartOf="@+id/stu_index_info_bg"
 			app:layout_constraintTop_toBottomOf="@id/stu_index_info_classroom" />
 
@@ -216,6 +213,11 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 
+		<xiaofu.lib.doodle.DoodleView
+			android:id="@+id/tDoodle"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:visibility="gone" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 

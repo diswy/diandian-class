@@ -23,8 +23,8 @@ import java.util.*
 
 @Route(path = "/app/aty/remote_player")
 class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
-//    private val source = "udp://239.0.0.2:5555"
-    private val source = "rtp://239.0.0.2:5555"
+    private val source = "udp://239.0.0.2:5555"
+//    private val source = "rtp://239.0.0.2:5555"
 
     private val observer = Observer<String> { s ->
         if (Command.BROADCAST_STOP == s || Command.DEMON_STOP == s) {

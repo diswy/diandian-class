@@ -8,29 +8,37 @@
 		android:id="@+id/layout_parent"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:background="@drawable/bg_lock_screen">
+		android:background="@drawable/bg_lock_screen_1">
 
 		<TextView
 			android:id="@+id/lock_screen_datetime"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textColor="@color/date_color"
+			android:textColor="@color/white"
 			android:textSize="120px"
+			android:textStyle="bold"
 			app:layout_constraintBottom_toTopOf="@id/lock_screen_title"
 			app:layout_constraintEnd_toEndOf="@id/lock_screen_title"
 			app:layout_constraintStart_toStartOf="@id/lock_screen_title"
 			tools:text="16：55" />
 
-		<TextView
+		<xiaofu.lib.view.FancyButton
 			android:id="@+id/lock_screen_title"
 			android:layout_width="781px"
 			android:layout_height="113px"
-			android:layout_marginStart="169px"
-			android:layout_marginTop="289px"
+			android:layout_marginEnd="8dp"
+			android:layout_marginBottom="8dp"
 			android:gravity="center"
 			android:text="正在授课，请认真听讲"
-			android:textColor="@color/date_color"
+			android:textColor="@color/white"
 			android:textSize="65px"
+			android:textStyle="bold"
+			app:fb_border_color="@color/white"
+			app:fb_border_type="line"
+			app:fb_border_width="2px"
+			app:fb_shape="rounded"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent" />
 
@@ -39,7 +47,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="26px"
-			android:textColor="@color/date_color"
+			android:textColor="@color/white"
 			android:textSize="49px"
 			app:layout_constraintEnd_toEndOf="@id/lock_screen_title"
 			app:layout_constraintStart_toStartOf="@id/lock_screen_title"

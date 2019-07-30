@@ -19,7 +19,7 @@
             android:layout_gravity="center"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textColor="@color/color222"
+            android:textColor="@color/color333"
             android:textSize="18sp"
             tools:text="标题" />
 

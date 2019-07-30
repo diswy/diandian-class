@@ -51,7 +51,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar',"*.aar"])
+    implementation fileTree(dir: 'libs', include: ['*.jar', "*.aar"])
     implementation 'com.ashokvarma.android:bottom-navigation-bar:2.1.0'
     implementation project(':common_ebd')
     implementation project(path: ':net_socket_client')

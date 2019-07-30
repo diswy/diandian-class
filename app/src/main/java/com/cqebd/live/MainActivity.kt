@@ -14,33 +14,39 @@ import android.media.Image
 import android.media.ImageReader
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.Settings
 import android.util.Log
-import android.view.KeyEvent
-import android.view.View
+import android.view.*
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import cn.alauncher.demo2.hralibrary.HRA_API
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
 import com.cqebd.live.databinding.ActivityMainBinding
+import com.cqebd.live.databinding.DialogClassingRoomBinding
 import com.cqebd.live.databinding.DialogDownloadLoadingBinding
+import com.cqebd.live.databinding.DialogSystemBinding
 import com.cqebd.live.service.FlyScreenService
 import com.cqebd.live.socketTool.KTool
 import com.cqebd.live.ui.QRActivity
+import com.cqebd.live.ui.adapter.DiscoverAdapter
+import com.cqebd.live.vo.ClassingRoomInfo
 import com.google.gson.Gson
 import com.jeremyliao.liveeventbus.LiveEventBus
 import com.king.zxing.Intents
 import com.liulishuo.filedownloader.BaseDownloadTask
 import com.liulishuo.filedownloader.FileDownloadListener
 import com.liulishuo.filedownloader.FileDownloader
-import com.qingmei2.rximagepicker.core.RxImagePicker
-import com.qingmei2.rximagepicker_extension.MimeType
-import com.qingmei2.rximagepicker_extension_zhihu.ZhihuConfigurationBuilder
 import com.tbruyelle.rxpermissions2.RxPermissions
 import cqebd.student.BaseApp
 import cqebd.student.commandline.CacheKey
 import cqebd.student.commandline.Command
+import cqebd.student.service.ClassService
 import cqebd.student.viewmodel.ClassViewModel
 import cqebd.student.vo.MyIntents
 import cqebd.student.vo.User
@@ -50,12 +56,12 @@ import org.jetbrains.anko.toast
 import xiaofu.lib.base.activity.BaseBindActivity
 import xiaofu.lib.cache.ACache
 import xiaofu.lib.inline.loadUrl
-import xiaofu.lib.picture.FileHelper
-import xiaofu.lib.picture.ZhihuImagePicker
 import xiaofu.lib.view.dialog.FancyDialogFragment
 import java.io.*
 import java.net.*
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 
 @Route(path = "/app/main")
@@ -66,35 +72,29 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
     var classing: Boolean = false
 
     private lateinit var cache: ACache
-
-    private lateinit var flyIntent: Intent
-
+    private lateinit var flyIntent: Intent// 学生飞屏
     private lateinit var viewModel: ClassViewModel
-
     private val raceHandFrag by lazy { navigationAsFrag("/app/frag/race") }
-
     private val observer = Observer<String> {
         Log.e("xiaofu", it)
         when (it) {
             Command.EAGER_ANSWER_START -> {
                 binding.containerMain.visibility = View.VISIBLE
-
                 supportFragmentManager.beginTransaction()
-                    .replace(R.id.container_main, raceHandFrag)
-                    .commitAllowingStateLoss()
+                        .replace(R.id.container_main, raceHandFrag)
+                        .commitAllowingStateLoss()
             }
             Command.EAGER_ANSWER_STOP -> {
                 binding.containerMain.visibility = View.GONE
                 supportFragmentManager.beginTransaction()
-                    .remove(raceHandFrag)
-                    .commitAllowingStateLoss()
+                        .remove(raceHandFrag)
+                        .commitAllowingStateLoss()
             }
             Command.CLASS_END -> {
                 binding.tvHintStatus.visibility = View.GONE
             }
             Command.SHARE_DESKTOP -> {// 开始截图
                 Log.e("屏幕分享", "收到分享指令")
-//                connectShare()
                 flyIntent = Intent(this, FlyScreenService::class.java)
                 startService(flyIntent)
                 screenShort()
@@ -105,10 +105,6 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                     FlyScreenService.stopScreenShot()
                     stopService(flyIntent)
                 }
-//                if (::sMediaProjection.isInitialized) {
-//                    Log.e("屏幕分享", "收到停止指令")
-//                    sMediaProjection.stop()
-//                }
             }
             else -> {
                 try {
@@ -118,7 +114,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                     } else if (commands[0] == Command.PRAISE) {
                         binding.stuIndexInfoGrade.text = "累计获赞:${commands[3]}分"
                     }
-                } catch (e: Exception) {
+                } catch (e: Exception) {// 防止指令错误引发崩溃
                     e.printStackTrace()
                 }
             }
@@ -135,43 +131,41 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
         cache = ACache.get(this)
 
         LiveEventBus.get()
-            .with(Command.COMMAND, String::class.java)
-            .observeForever(observer)
+                .with(Command.COMMAND, String::class.java)
+                .observeForever(observer)
 
+        initToolbar()
+
+        // 初始化时间
         viewModel = ViewModelProviders.of(this, BaseApp.instance.factory).get(ClassViewModel::class.java)
         viewModel.getTime().observe(this, Observer {
             binding.stuIndexDatetime.text = it
         })
-
         mDisposablePool.add(viewModel.startTime())
-
         binding.stuIndexDate.text = viewModel.getStringData()
-
+        // 读取共享的缓存，点点课的ID、姓名、头像
         readInfoBySD()
 
-        binding.tvHintStatus.visibility = if (classing) View.VISIBLE else View.GONE
 
         val directory = File(KTool.getSDPath())
         if (!directory.exists()) {
             directory.mkdirs()
         }
 
-        broadcastDiscover()// 自动发现IP
-
+        // 上课文字状态以及累计点赞UI更新
+        binding.tvHintStatus.visibility = if (classing) View.VISIBLE else View.GONE
         val total = cache.getAsString(CacheKey.TOTAL_SUB)
         if (total != null) {
             binding.stuIndexInfoGrade.text = "累计获赞:${total}分"
         } else {
-            binding.stuIndexInfoGrade.text = "你目前还没获得任何表扬"
+            binding.stuIndexInfoGrade.text = "加油，可以获得表扬哦"
         }
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
         val bool = intent?.getBooleanExtra("classing", false) ?: return
-        if (bool) {
-            binding.tvHintStatus.visibility = if (bool) View.VISIBLE else View.GONE
-        }
+        binding.tvHintStatus.visibility = if (bool) View.VISIBLE else View.GONE
     }
 
     override fun onResume() {
@@ -196,30 +190,41 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
     }
 
     override fun bindListener(binding: ActivityMainBinding) {
-        binding.btnQrScan.setOnClickListener {
-            RxPermissions(this).request(Manifest.permission.CAMERA)
-                .subscribe {
-                    if (it) {
-                        val intent = Intent(this, QRActivity::class.java)
-                        startActivityForResult(intent, 333)
-                    } else {
-                        toast("你拒绝了使用权限，无法使用相机功能")
-                    }
-                }
 
+        binding.btnSystem.setOnLongClickListener {
+            FancyDialogFragment.create()
+                    .setLayoutRes(R.layout.dialog_system)
+                    .setWidth(400)
+                    .setViewListener { dialog, systemBinding ->
+                        systemBinding as DialogSystemBinding
+                        systemBinding.btnCancel.setOnClickListener {
+                            dialog.dismiss()
+                        }
+
+                        systemBinding.btnConfirm.setOnClickListener {
+                            if (systemBinding.etPwd.text.toString() == "123456") {
+                                val i = Intent(this, ClassService::class.java)
+                                stopService(i)
+                                this.finish()
+                            } else {
+                                toast("密码错误，请认真上课")
+                            }
+                        }
+                    }
+                    .show(supportFragmentManager, "system")
+
+            return@setOnLongClickListener true
         }
 
         binding.stuIndexBagBg.setOnClickListener {
             doStartApplicationWithPackageName("org.qimon.launcher6")
         }
 
-        binding.stuIndexInfoBg.setOnClickListener {
-            navigation("/app/aty/remote_player")
-        }
-
         binding.stuIndexFileBg.setOnClickListener {
             navigation("/app/aty/my_file")
-//            screenShort()
+//            test()
+//            navigation("/app/aty/lockScreen")
+//            showDoodleView()
         }
 
     }
@@ -231,18 +236,15 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
             if (requestCode == 333) {
                 val result = data.getStringExtra(Intents.Scan.RESULT) ?: return
 
-                val cache = ACache.get(this)
                 cache.put(CacheKey.IP_ADDRESS, result.substring(1))
                 LiveEventBus.get()
-                    .with(Command.COMMAND, String::class.java)
-                    .post(Command.CONNECT_IP)
-                toast(result)
+                        .with(Command.COMMAND, String::class.java)
+                        .post(Command.CONNECT_IP)
             }
 
             if (requestCode == requestScreenShortPermission) {
                 myPermission = true
                 sMediaProjection = mProjectionManager.getMediaProjection(resultCode, data)
-//                startScreenShort()
 
                 val ip = cache.getAsString(CacheKey.IP_ADDRESS) ?: return
                 FlyScreenService.connectServer(this, ip, sMediaProjection)
@@ -250,14 +252,38 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
         }
     }
 
+    // 初始化toolbar
+    private fun initToolbar() {
+        binding.mainToolbar.inflateMenu(R.menu.menu_main_settings)
+        binding.mainToolbar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.menu_qr_scan -> {
+                    RxPermissions(this).request(Manifest.permission.CAMERA)
+                            .subscribe {
+                                if (it) {
+                                    val intent = Intent(this, QRActivity::class.java)
+                                    startActivityForResult(intent, 333)
+                                } else {
+                                    toast("你拒绝了使用权限，无法使用相机功能")
+                                }
+                            }
+                }
+                R.id.menu_switch_room -> {
+                    showClassingRoom()
+                }
+            }
+            return@setOnMenuItemClickListener false
+        }
+    }
+
 
     // 启动第三方应用
-    private fun doStartApplicationWithPackageName(packagename: String) {
+    private fun doStartApplicationWithPackageName(pkgName: String) {
 
         // 通过包名获取此APP详细信息，包括Activities、services、versioncode、name等等
         var packageInfo: PackageInfo? = null
         try {
-            packageInfo = packageManager.getPackageInfo(packagename, 0)
+            packageInfo = packageManager.getPackageInfo(pkgName, 0)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -274,7 +300,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
 
         // 通过getPackageManager()的queryIntentActivities方法遍历
         val resolveInfoList = packageManager
-            .queryIntentActivities(resolveIntent, 0)
+                .queryIntentActivities(resolveIntent, 0)
 
         val resolveInfo = resolveInfoList.iterator().next()
         if (resolveInfo != null) {
@@ -304,33 +330,19 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
         return super.onKeyDown(keyCode, event)
     }
 
-    private fun sharedUser(data: String) {
-        val path = Environment.getExternalStorageDirectory().absolutePath.plus("/yunketang/shared")
-        val file = File(path)
-        if (!file.exists()) {
-            file.mkdirs()
-        }
-
-        val mFile = File(path, "user")
-        val outStream = FileOutputStream(mFile)
-        outStream.write(data.toByteArray())
-        outStream.close()
-    }
-
-
     // 读取本地文件
     private fun readInfoBySD() {
         val task = RxPermissions(this).request(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
         )
-            .subscribe {
-                if (it) {
-                    readUser()
-                } else {
-                    toast("你拒绝了使用权限")
+                .subscribe {
+                    if (it) {
+                        readUser()
+                    } else {
+                        toast("你拒绝了使用权限")
+                    }
                 }
-            }
         mDisposablePool.add(task)
     }
 
@@ -344,17 +356,14 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                 val bufferReader = BufferedReader(inputReader)
                 val strBuilder = StringBuilder()
                 while (bufferReader.readLine().apply {
-                        if (this != null) {
-                            strBuilder.append(this)
-                        }
-                    } != null) {
+                            if (this != null) {
+                                strBuilder.append(this)
+                            }
+                        } != null) {
 
                 }
                 inputStream.close()
-                Log.d("xiaofu", strBuilder.toString())
 
-//                val user: User = Gson().fromJson(strBuilder.toString(), User::class.java)
-//                cache.put(CacheKey.KEY_ID, user.ID.toString())
                 cache.put(CacheKey.KEY_USER, strBuilder.toString())
 
                 try {
@@ -364,7 +373,6 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                 } catch (e: Exception) {
 
                 }
-
 
             } catch (e: Exception) {
                 toast("请先打开点点课，进行登陆操作")
@@ -405,20 +413,20 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
         val metrics = resources.displayMetrics
 
         mImageReader = ImageReader.newInstance(
-            metrics.widthPixels,
-            metrics.heightPixels,
-            PixelFormat.RGBA_8888,
-            2
+                metrics.widthPixels,
+                metrics.heightPixels,
+                PixelFormat.RGBA_8888,
+                2
         )
         mVirtualDisplay = sMediaProjection.createVirtualDisplay(
-            "screen_short" + System.currentTimeMillis(),
-            metrics.widthPixels,
-            metrics.heightPixels,
-            metrics.densityDpi,
-            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-            mImageReader!!.surface,
-            null,
-            null
+                "screen_short" + System.currentTimeMillis(),
+                metrics.widthPixels,
+                metrics.heightPixels,
+                metrics.densityDpi,
+                DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+                mImageReader!!.surface,
+                null,
+                null
         )
 
         mImageReader?.setOnImageAvailableListener({ reader ->
@@ -436,8 +444,8 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                     val rowStride = planes[0].rowStride
                     val rowPadding = rowStride - pixelStride * metrics.widthPixels
                     bitmap = Bitmap.createBitmap(
-                        metrics.widthPixels + rowPadding / pixelStride,
-                        metrics.heightPixels, Bitmap.Config.ARGB_8888
+                            metrics.widthPixels + rowPadding / pixelStride,
+                            metrics.heightPixels, Bitmap.Config.ARGB_8888
                     )
                     Log.e("屏幕分享", "收到一张截图，待发送")
 
@@ -448,60 +456,52 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                     fos.flush()
 
                     val disposable = Flowable.just(1)
-                        .subscribeOn(Schedulers.io())
-                        .subscribe({
-                            mSocketOs?.let { os ->
-                                val file = File(fileName)
-                                val fileInputOs = FileInputStream(file)
-                                val fileSize = file.length().toInt()
+                            .subscribeOn(Schedulers.io())
+                            .subscribe({
+                                mSocketOs?.let { os ->
+                                    val file = File(fileName)
+                                    val fileInputOs = FileInputStream(file)
+                                    val fileSize = file.length().toInt()
 
-                                var read = 0
-                                var totalRead = 0
-                                var remaining = fileSize
-                                Log.e("屏幕分享", "文件大小：$fileSize")
-                                while (totalRead < fileSize && fileInputOs.read(
-                                        imgBuffer,
-                                        0,
-                                        Math.min(imgBuffer.size, remaining)
-                                    ).apply {
-                                        read = this
-                                    } > 0
-                                ) {
-                                    Log.e("屏幕分享", "开始发送文件")
-                                    os.write(KTool.getSendByteShareHot(fileSize, mShareHotCount, read))
-                                    os.flush()
-                                    os.write(imgBuffer, 0, read)
-                                    os.flush()
-                                    totalRead += read
-                                    remaining -= read
+                                    var read = 0
+                                    var totalRead = 0
+                                    var remaining = fileSize
+                                    Log.e("屏幕分享", "文件大小：$fileSize")
+                                    while (totalRead < fileSize && fileInputOs.read(
+                                                    imgBuffer,
+                                                    0,
+                                                    Math.min(imgBuffer.size, remaining)
+                                            ).apply {
+                                                read = this
+                                            } > 0
+                                    ) {
+                                        Log.e("屏幕分享", "开始发送文件")
+                                        os.write(KTool.getSendByteShareHot(fileSize, mShareHotCount, read))
+                                        os.flush()
+                                        os.write(imgBuffer, 0, read)
+                                        os.flush()
+                                        totalRead += read
+                                        remaining -= read
+                                    }
+                                    Log.e("屏幕分享", "发送完毕~")
+                                    mShareHotCount++
                                 }
-                                Log.e("屏幕分享", "发送完毕~")
-                                mShareHotCount++
-                            }
-                        }, {
-                            Log.e("屏幕分享", "RX错误${it.message}")
-                        }, {
-                            if (fos != null) {
-                                try {
-                                    Log.e("屏幕分享", "fos被关闭了")
-                                    fos.close()
-                                } catch (e: IOException) {
-                                    e.printStackTrace()
+                            }, {
+                                Log.e("屏幕分享", "RX错误${it.message}")
+                            }, {
+                                if (fos != null) {
+                                    try {
+                                        Log.e("屏幕分享", "fos被关闭了")
+                                        fos.close()
+                                    } catch (e: IOException) {
+                                        e.printStackTrace()
+                                    }
                                 }
-                            }
-                        })
+                            })
                 }
             } catch (e: Exception) {
                 Log.e("屏幕分享", "发生错误，错误内容：${e.message}")
             } finally {
-//                if (fos != null) {
-//                    try {
-//                        Log.e("屏幕分享", "fos被关闭了")
-//                        fos.close()
-//                    } catch (e: IOException) {
-//                        e.printStackTrace()
-//                    }
-//                }
                 bitmap?.recycle()
                 image?.close()
             }
@@ -530,88 +530,182 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
     private var mVirtualDisplay: VirtualDisplay? = null
     private var mImageReader: ImageReader? = null
 
-    //--------------UDP组播
-    private var udpThreadFlag = true
+    // UDP组播技术，监听IP
+    private val roomSet: HashSet<ClassingRoomInfo> = HashSet()
+    private var udpDiscoverFlag = true
 
-    private fun broadcastDiscover() {
+    private fun broadcastDiscover(adapter: DiscoverAdapter) {
+        udpDiscoverFlag = true
         val disposable = Flowable.just(1)
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
-            .subscribe({
-                val host = "239.0.0.1"
-                val ds = MulticastSocket(8002)
-                val receiveAddress = InetAddress.getByName(host)
-                ds.joinGroup(receiveAddress)
-                val mBuffer = ByteArray(128)
-                val dp = DatagramPacket(mBuffer, 128, receiveAddress, 8002)
-                while (udpThreadFlag) {
-                    Log.d("xiaofu","等待接收")
-                    try {
-                        ds.receive(dp)
-                        val command = String(mBuffer, 0, dp.length)
-                        Log.d("xiaofu","命令：$command")
-                        val commands = command.split(" ")
-                        if (commands.size >= 3) {
-                            val ip = commands[2]
-                            cache.put(CacheKey.IP_ADDRESS_AUTO, ip)
-                            udpThreadFlag = false
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .subscribe({
+                    val host = "239.0.0.1"
+                    val ds = MulticastSocket(8002)
+                    ds.soTimeout = 5000
+                    val receiveAddress = InetAddress.getByName(host)
+                    ds.joinGroup(receiveAddress)
+                    val mBuffer = ByteArray(128)
+                    val dp = DatagramPacket(mBuffer, 128, receiveAddress, 8002)
+
+                    while (udpDiscoverFlag) {
+                        try {
+                            ds.receive(dp)
+                            val command = String(mBuffer, 0, dp.length)
+                            Log.d("xiaofu", "命令：$command")
+                            val commands = command.split(" ")
+                            if (commands.size >= 4) {
+                                val room = ClassingRoomInfo(commands[2], commands[3])
+                                roomSet.add(room)
+                            }
+
+                            val roomList = ArrayList<ClassingRoomInfo>()
+                            roomSet.forEach {
+                                roomList.add(it)
+                            }
+                            runOnUiThread {
+                                adapter.setNewData(roomList)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            Log.d("xiaofu", "错误：${e.message}")
                         }
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        Log.d("xiaofu","错误：${e.message}")
                     }
-                }
-            }, {})
+                    ds.leaveGroup(receiveAddress)
+                    Log.d("xiaofu", "等待接收  UDP已退出")
+                }, {})
         mDisposablePool.add(disposable)
     }
 
+    private fun showClassingRoom() {
+        val classingDialog = FancyDialogFragment
+                .create()
+                .setLayoutRes(R.layout.dialog_classing_room)
+                .setWidth(730)
+                .setDismissListener { udpDiscoverFlag = false }
+                .setViewListener { dialog, classBinding ->
+                    val adapter = DiscoverAdapter(cache.getAsString(CacheKey.IP_ADDRESS))
+                    classBinding as DialogClassingRoomBinding
+                    classBinding.rvClassing.layoutManager = LinearLayoutManager(this)
+                    classBinding.rvClassing.adapter = adapter
+                    adapter.setEmptyView(R.layout.empty_class_room, classBinding.rvClassing)
+
+                    adapter.setOnItemClickListener { _, _, pos ->
+                        val info = adapter.getItem(pos) ?: return@setOnItemClickListener
+                        cache.put(CacheKey.IP_ADDRESS, info.ip)
+                        LiveEventBus.get()
+                                .with(Command.COMMAND, String::class.java)
+                                .post(Command.CONNECT_IP)
+
+                        dialog.dismiss()
+                    }
+
+                    broadcastDiscover(adapter)
+                }
+        classingDialog.show(supportFragmentManager, "classing")
+    }
+
+    // 接收文件
     private fun receiveClassFile(url: String) {
         val progressFragment = FancyDialogFragment
-            .create()
-            .setCanCancelOutside(false)
-            .setLayoutRes(R.layout.dialog_download_loading)
-            .setWidth(1000)
-            .setViewListener { fancyDialog, fragBinding ->
-                fragBinding as DialogDownloadLoadingBinding
+                .create()
+                .setCanCancelOutside(false)
+                .setLayoutRes(R.layout.dialog_download_loading)
+                .setWidth(1000)
+                .setViewListener { fancyDialog, fragBinding ->
+                    fragBinding as DialogDownloadLoadingBinding
 
-                fragBinding.downloadProgress.max = 100
+                    fragBinding.downloadProgress.max = 100
 
-                val idx = url.lastIndexOf("/")
-                val fileName = url.substring(idx + 1, url.length)
-                Log.e("xiaofu", "下载地址：$url,文件名称：$fileName")
-                FileDownloader.setup(this)
-                FileDownloader.getImpl().create(url)
-                    .setPath(KTool.getFilePath() + fileName)
-                    .setListener(object : FileDownloadListener() {
-                        override fun warn(task: BaseDownloadTask?) {
-                        }
+                    val idx = url.lastIndexOf("/")
+                    val fileName = url.substring(idx + 1, url.length)
+                    Log.e("xiaofu", "下载地址：$url,文件名称：$fileName")
+                    FileDownloader.setup(this)
+                    FileDownloader.getImpl().create(url)
+                            .setPath(KTool.getFilePath() + fileName)
+                            .setListener(object : FileDownloadListener() {
+                                override fun warn(task: BaseDownloadTask?) {
+                                }
 
-                        override fun completed(task: BaseDownloadTask?) {
-                            toast("下载完成,请在我的文件中查看")
-                            fancyDialog.dismiss()
-                        }
+                                override fun completed(task: BaseDownloadTask?) {
+                                    toast("下载完成,请在我的文件中查看")
+                                    fancyDialog.dismiss()
+                                }
 
-                        override fun pending(task: BaseDownloadTask?, soFarBytes: Int, totalBytes: Int) {
-                        }
+                                override fun pending(task: BaseDownloadTask?, soFarBytes: Int, totalBytes: Int) {
+                                }
 
-                        override fun error(task: BaseDownloadTask?, e: Throwable?) {
-                            toast("下载出错")
-                            fancyDialog.dismiss()
-                        }
+                                override fun error(task: BaseDownloadTask?, e: Throwable?) {
+                                    toast("下载出错")
+                                    fancyDialog.dismiss()
+                                }
 
-                        override fun progress(task: BaseDownloadTask?, soFarBytes: Int, totalBytes: Int) {
-                            fragBinding.downloadProgress.progress = ((soFarBytes / totalBytes.toFloat()) * 100).toInt()
-                            val current = String.format("%.2fkb", soFarBytes / 1024.0)
-                            val total = String.format("%.2fkb", totalBytes / 1024.0)
-                            fragBinding.tvHintInfo.text = current.plus("/").plus(total)
-                        }
+                                override fun progress(task: BaseDownloadTask?, soFarBytes: Int, totalBytes: Int) {
+                                    fragBinding.downloadProgress.progress = ((soFarBytes / totalBytes.toFloat()) * 100).toInt()
+                                    val current = String.format("%.2fkb", soFarBytes / 1024.0)
+                                    val total = String.format("%.2fkb", totalBytes / 1024.0)
+                                    fragBinding.tvHintInfo.text = current.plus("/").plus(total)
+                                }
 
-                        override fun paused(task: BaseDownloadTask?, soFarBytes: Int, totalBytes: Int) {
-                        }
-                    })
-                    .start()
-            }
+                                override fun paused(task: BaseDownloadTask?, soFarBytes: Int, totalBytes: Int) {
+                                }
+                            })
+                            .start()
+                }
         progressFragment.show(supportFragmentManager, "download")
+    }
+
+    // 演示用画笔
+    private fun showDoodleView() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Settings.canDrawOverlays(this)) {
+                realShowDoodle()
+            } else {
+                val i = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+                startActivity(i)
+            }
+        } else {
+            realShowDoodle()
+        }
+    }
+
+    private fun realShowDoodle() {
+        //        val windowManager = windowManager
+//        val wmParams = WindowManager.LayoutParams(-1, -1, 0, 0, PixelFormat.TRANSPARENT)
+        val windowManager: WindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val wmParams = WindowManager.LayoutParams()
+//        wmParams.type = WindowManager.LayoutParams.TYPE_TOAST or WindowManager.LayoutParams.TYPE_APPLICATION_PANEL
+        wmParams.format = PixelFormat.RGBA_8888
+        wmParams.gravity = Gravity.CENTER
+
+
+        wmParams.packageName = packageName
+//        wmParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+        wmParams.type = WindowManager.LayoutParams.TYPE_PHONE
+        wmParams.flags = (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+                or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+                or WindowManager.LayoutParams.FLAG_SCALED
+                or WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR
+                or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN)
+//        wmParams.type = WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
+//        wmParams.gravity = Gravity.CENTER
+        val v = LayoutInflater.from(this).inflate(R.layout.fragment_doodle, null, false)
+
+        wmParams.width = 1920
+        wmParams.height = 1200
+        wmParams.x = 0
+        wmParams.y = 0
+        windowManager.addView(v, wmParams)
+    }
+
+    //-----------------------------test
+    private fun test(){
+        val s = "ANSWER_START 1419 eyJRdWVzdGlvblR5cGUiOjUsIlF1ZXN0aW9uRGVzYyI6Imh0dHA6Ly8xOTIuMTY4LjEuMTI4OjI3MjcyL1JlY29yZC8yMDE5LzA3LzI5LzIwMTkwNzI5MTYxNTEzMDk1NC1jdXQuanBnIiwiUXVlc3Rpb25Db3VudCI6MCwiUXVlc3Rpb25PcHRpb25zIjozLCJEb3duQ291bnRNaW51dGUiOjB9"
+        ARouter.getInstance()
+                .build("/app/aty/answer")
+                .withString("commands", s)
+                .navigation()
     }
 
 }

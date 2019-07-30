@@ -106,5 +106,6 @@ dependencies {
     kapt deps.kapt.room
     // 组件
     api project(':component_picture_selector')
+    api project(':component_doodle')
     api files('libs/HRA_API_RK3368H_7.1__201809111025.jar')
 }

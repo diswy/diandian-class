@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:ignore="PxUsage,HardcodedText">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="80px"
+			android:background="@color/colorPrimary"
+			android:orientation="horizontal"
+			android:paddingStart="40px"
+			android:paddingEnd="40px">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="match_parent"
+				android:layout_weight="1"
+				android:gravity="center_vertical"
+				android:text="发现教室"
+				android:textColor="@color/white" />
+
+			<ImageView
+				android:visibility="gone"
+				android:id="@+id/btn_refresh"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:contentDescription="@string/img"
+				android:src="@mipmap/ic_launcher" />
+
+		</LinearLayout>
+
+
+		<androidx.recyclerview.widget.RecyclerView
+			android:id="@+id/rv_classing"
+			android:layout_width="match_parent"
+			android:layout_height="460px"
+			android:background="@color/white"
+			android:overScrollMode="never" />
+
+	</LinearLayout>
+
+</layout>

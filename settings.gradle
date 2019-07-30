@@ -1,4 +1,4 @@
-include ':app'
+include ':app', ':component_doodle'
 include ':common_ebd'
 include ':component_picture_selector'
 include ':net_socket_client'

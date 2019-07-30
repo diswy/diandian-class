@@ -53,7 +53,6 @@ class FlyScreenService : Service() {
          * 连接服务器
          */
         fun connectServer(ctx: Context, ip: String, mediaProjection: MediaProjection) {
-//            startScreenShot(ctx, mediaProjection)
             Log.e("屏幕分享","进入这方法了")
             Thread(Runnable {
                 try {
@@ -170,6 +169,5 @@ class FlyScreenService : Service() {
             }
         }
     }
-
 
 }

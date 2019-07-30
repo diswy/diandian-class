@@ -3,7 +3,7 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:context="com.cqebd.live.ui.aty.AnswerActivity"
-	tools:ignore="PxUsage">
+	tools:ignore="PxUsage,HardcodedText">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -15,36 +15,118 @@
 			android:layout_height="match_parent"
 			android:layout_weight="1">
 
-			<ImageView
-				android:id="@+id/iv_question"
+			<FrameLayout
+				android:id="@+id/bg_group"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
+
+				<ImageView
+					android:id="@+id/iv_question"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:contentDescription="@string/img"
+					android:scaleType="centerInside"
+					app:layout_constraintBottom_toBottomOf="parent"
+					app:layout_constraintEnd_toEndOf="parent"
+					app:layout_constraintStart_toStartOf="parent" />
+
+			</FrameLayout>
+
+			<xiaofu.lib.doodle.DoodleView
+				android:id="@+id/answer_doodle_view"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				android:contentDescription="@string/img"
-				android:scaleType="centerInside"/>
+				android:visibility="gone" />
 
 			<LinearLayout
 				android:id="@+id/ll_controller"
-				tools:visibility="visible"
-				android:visibility="gone"
-				android:layout_marginBottom="32dp"
-				android:layout_gravity="center_horizontal|bottom"
-				android:padding="8dp"
-				android:orientation="horizontal"
+				android:layout_marginBottom="16dp"
+				android:layout_gravity="bottom|center"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content">
+				android:layout_height="wrap_content"
+				android:background="@drawable/bg_controller_paint"
+				android:gravity="center_vertical"
+				android:orientation="horizontal">
 
-				<ImageView
+				<Space
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1" />
+
+				<TextView
+					android:id="@+id/btn_choose_paint"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:drawableTop="@drawable/ic_my_paint"
+					android:gravity="center"
+					android:padding="12dp"
+					android:text="画笔"
+					android:textColor="@color/color666" />
+
+				<Space
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1" />
+
+				<TextView
+					android:id="@+id/btn_paint_back"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:drawableTop="@drawable/ic_paint_back"
+					android:gravity="center"
+					android:padding="12dp"
+					android:text="撤销"
+					android:textColor="@color/color666" />
+
+				<Space
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1" />
+
+				<TextView
+					android:id="@+id/btn_paint_clear"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:drawableTop="@drawable/ic_paint_clear"
+					android:gravity="center"
+					android:padding="12dp"
+					android:text="清屏"
+					android:textColor="@color/color666" />
+
+				<Space
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1" />
+
+				<TextView
 					android:id="@+id/btn_take_photo"
-					android:src="@drawable/ic_take_photo"
 					android:layout_width="wrap_content"
-					android:layout_height="wrap_content" />
+					android:layout_height="wrap_content"
+					android:drawableTop="@drawable/ic_take_photo"
+					android:gravity="center"
+					android:padding="12dp"
+					android:text="相册"
+					android:textColor="@color/color666" />
 
-				<ImageView
+				<Space
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1" />
+
+				<TextView
 					android:id="@+id/btn_commit_pic"
-					android:layout_marginStart="32dp"
-					android:src="@drawable/ic_btn_commit"
 					android:layout_width="wrap_content"
-					android:layout_height="wrap_content" />
+					android:layout_height="wrap_content"
+					android:drawableTop="@drawable/ic_btn_commit"
+					android:gravity="center"
+					android:padding="12dp"
+					android:text="提交"
+					android:textColor="@color/color666" />
+
+				<Space
+					android:layout_width="0dp"
+					android:layout_height="match_parent"
+					android:layout_weight="1" />
 
 			</LinearLayout>
 
@@ -73,10 +155,10 @@
 				android:background="#edf7f4" />
 
 			<TextView
-				android:layout_gravity="center_horizontal"
 				android:id="@+id/btn_commit"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
+				android:layout_gravity="center_horizontal"
 				android:background="@drawable/bg_btn_commit"
 				android:gravity="center"
 				android:text="提 交"

@@ -14,8 +14,6 @@ import com.alibaba.android.arouter.facade.annotation.Autowired;
 import com.alibaba.android.arouter.facade.annotation.Route;
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.cqebd.live.R;
-import com.cqebd.live.TCommand;
-import com.cqebd.live.TImg;
 import com.cqebd.live.databinding.ActivityRemoteBinding;
 import com.cqebd.live.socketTool.KTool;
 import com.cqebd.live.socketTool.MySocketClient;
@@ -507,13 +505,13 @@ public class RemoteJavaActivity extends BaseBindActivity<ActivityRemoteBinding> 
             }
         } else {// 寻找图片命令
             String command = new String(buffer, 0, 16, Charset.forName("UTF-8")).trim();
-            System.arraycopy(buffer,16,intBuffer,0,4);
+            System.arraycopy(buffer, 16, intBuffer, 0, 4);
             int imgPos = ByteTools.bytes2Int(intBuffer);// 图片编号
-            System.arraycopy(buffer,20,intBuffer,0,4);
+            System.arraycopy(buffer, 20, intBuffer, 0, 4);
             int imgSize = ByteTools.bytes2Int(intBuffer);// 图片大小
-            System.arraycopy(buffer,24,intBuffer,0,4);
+            System.arraycopy(buffer, 24, intBuffer, 0, 4);
             int sendTimes = ByteTools.bytes2Int(intBuffer);// 发送次数
-            System.arraycopy(buffer,28,intBuffer,0,4);
+            System.arraycopy(buffer, 28, intBuffer, 0, 4);
             int finalSize = ByteTools.bytes2Int(intBuffer);// 最后一次包大小
             Log.i("远程桌面", String.format(udpFormat, command, imgPos, imgSize, sendTimes, finalSize));
             if (command.equals(Command.SCREENS_RESPONSE)) {
@@ -526,36 +524,6 @@ public class RemoteJavaActivity extends BaseBindActivity<ActivityRemoteBinding> 
                 myImgEndSize = finalSize;// 重置当前图片最后一个包大小
             }
         }
-    }
-
-    //-----------测试udp
-    private List<TCommand> cmdList = new ArrayList<>();
-    private List<TImg> imgList = new ArrayList<>();
-
-    private void testUDP(byte[] buffer, OutputStream os) throws IOException {
-        String command = new String(buffer, 0, 16, Charset.forName("UTF-8")).trim();
-        System.arraycopy(buffer, 16, intBuffer, 0, 4);
-        int imgPos = ByteTools.bytes2Int(intBuffer);// 图片编号
-        System.arraycopy(buffer, 20, intBuffer, 0, 4);
-        int imgSize = ByteTools.bytes2Int(intBuffer);// 图片大小
-        System.arraycopy(buffer, 24, intBuffer, 0, 4);
-        int sendTimes = ByteTools.bytes2Int(intBuffer);// 发送次数
-        System.arraycopy(buffer, 28, intBuffer, 0, 4);
-        int finalSize = ByteTools.bytes2Int(intBuffer);// 最后一次包大小
-
-        if (command.equals(Command.SCREENS_RESPONSE)) {// 是命令
-            String s = count + "、" + "--------当前第" + imgPos + "张图------发送次数:" + sendTimes + "------\n";
-            os.write(s.getBytes());
-        } else {
-            System.arraycopy(buffer, 0, intBuffer, 0, 4);
-            int pos = ByteTools.bytes2Int(intBuffer);
-            System.arraycopy(buffer, 4, intBuffer, 0, 4);
-            int pos2 = ByteTools.bytes2Int(intBuffer);
-//            TImg tImg = new TImg(pos, pos2,count);
-            String s = count + "、" + "第" + pos + "张,接收顺序:" + pos2 + "\n";
-            os.write(s.getBytes());
-        }
-
     }
 
 }
