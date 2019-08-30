@@ -16,14 +16,16 @@ import com.ywl5320.wlmedia.WlMedia
 import com.ywl5320.wlmedia.enums.*
 import com.ywl5320.wlmedia.listener.WlOnPcmDataListener
 import com.ywl5320.wlmedia.listener.WlOnVideoViewListener
+import cqebd.student.commandline.CacheKey
 import cqebd.student.commandline.Command
 import org.jetbrains.anko.toast
 import xiaofu.lib.base.activity.BaseBindActivity
+import xiaofu.lib.cache.ACache
 import java.util.*
 
 @Route(path = "/app/aty/remote_player")
 class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
-    private val source = "udp://239.0.0.2:5555"
+    private var source = "udp://239.0.0.2:5555"
 //    private val source = "rtp://239.0.0.2:5555"
 
     private val observer = Observer<String> { s ->
@@ -58,6 +60,12 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
     override fun initialize(binding: ActivityRemotePlayerBinding) {
         ARouter.getInstance().inject(this)
 
+        val cache = ACache.get(this)
+        val url:String? = cache.getAsString(CacheKey.REMOTE_URL)
+        if (url != null){
+            source = url
+        }
+
         LiveEventBus.get().with(Command.COMMAND, String::class.java).observe(this, observer)
 
         val vto = binding.container.viewTreeObserver
@@ -69,7 +77,6 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
                 obs.removeOnGlobalLayoutListener(this)
             }
         })
-
         wlMedia = WlMedia()
         wlMedia.setPlayModel(WlPlayModel.PLAYMODEL_AUDIO_VIDEO)//声音视频都播放
         wlMedia.setCodecType(WlCodecType.CODEC_MEDIACODEC)//优先使用硬解码
@@ -135,7 +142,7 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
 
 
         play(source)
-        toast(isControl.toString())
+//        toast(isControl.toString())
         if (isControl) {
             binding.controllerRemote.setOnTouchListener { v, event ->
                 when (event.action and MotionEvent.ACTION_MASK) {

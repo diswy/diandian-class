@@ -1,0 +1,18 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:background="@drawable/bg_circle"
+	tools:context="com.cqebd.live.ui.frag.DoodleFragment">
+
+	<TextView
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="center"
+		android:checked="false"
+		android:drawableTop="@drawable/ic_my_paint"
+		android:gravity="center"
+		android:text="画笔"
+		tools:ignore="HardcodedText" />
+
+</FrameLayout>

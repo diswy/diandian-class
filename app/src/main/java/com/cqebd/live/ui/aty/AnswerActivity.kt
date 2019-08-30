@@ -1,11 +1,17 @@
 package com.cqebd.live.ui.aty
 
 import android.Manifest
+import android.app.Activity
+import android.app.ProgressDialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
+import android.hardware.display.DisplayManager
+import android.hardware.display.VirtualDisplay
+import android.media.MediaRecorder
+import android.media.projection.MediaProjection
+import android.media.projection.MediaProjectionManager
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
@@ -18,13 +24,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.alibaba.android.arouter.facade.annotation.Autowired
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.alibaba.android.arouter.launcher.ARouter
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.target.Target
-import com.bumptech.glide.request.transition.Transition
 import com.cqebd.live.R
 import com.cqebd.live.databinding.ActivityAnswerBinding
+import com.cqebd.live.socketTool.KTool.getRecordPath
 import com.cqebd.live.ui.adapter.BlankAdapter
 import com.cqebd.live.ui.adapter.MultipleAdapter
 import com.cqebd.live.ui.adapter.SingleChoiceAdapter
@@ -51,11 +53,11 @@ import xiaofu.lib.base.activity.BaseBindActivity
 import xiaofu.lib.cache.ACache
 import xiaofu.lib.doodle.DoodleView
 import xiaofu.lib.inline.loadUrl
-import xiaofu.lib.picture.FileHelper
 import xiaofu.lib.picture.ZhihuImagePicker
-import xiaofu.lib.tools.GlideApp
 import xiaofu.lib.utils.base64
 import xiaofu.lib.utils.base64ToS
+import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -76,8 +78,6 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
     private var userId = -1
     private lateinit var popPaintOptions: View
 
-    private var bgBitmap: Bitmap? = null
-
     private val observer = Observer<String> {
         val commands = it.split(" ")
         when (commands[0]) {
@@ -97,10 +97,11 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
     override fun initialize(binding: ActivityAnswerBinding) {
         ARouter.getInstance().inject(this)
         LiveEventBus.get()
-                .with(Command.COMMAND, String::class.java)
-                .observe(this, observer)
+            .with(Command.COMMAND, String::class.java)
+            .observe(this, observer)
 
         initPopPaint()
+        initMyRecordPath()
 
         val cache = ACache.get(this)
         val ids = cache.getAsString(CacheKey.KEY_ID)
@@ -158,23 +159,15 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
                         binding.llGroup.visibility = View.GONE
                         binding.llController.visibility = View.VISIBLE
                         binding.answerDoodleView.visibility = View.VISIBLE
-                        Glide.with(this).asBitmap().load(mAnswerInfo.QuestionDesc)
-                                .into(object : CustomTarget<Bitmap>() {
-                                    override fun onLoadCleared(placeholder: Drawable?) {
-                                    }
-
-                                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-//                                    binding.answerDoodleView.background = BitmapDrawable(resources, resource)
-                                        bgBitmap = resource
-                                    }
-
-                                })
                         initPaint()
+                        requestRecord()
                     }
                     CAnswerType.PHOTO.value -> {
                         binding.tvTitle.text = "实拍题"
                         binding.llGroup.visibility = View.GONE
                         binding.llController.visibility = View.VISIBLE
+                        binding.answerDoodleView.visibility = View.VISIBLE
+                        initPaint()
                     }
                     else -> {
                         toast("没有对应类型的题目")
@@ -190,7 +183,6 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
         }
 
     }
-
 
     override fun bindListener(binding: ActivityAnswerBinding) {
         binding.btnCommit.setOnClickListener {
@@ -219,14 +211,14 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
 //            Logger.d(answerCommit.format(Command.ANSWER_SUBMIT, content).base64())
 
             LiveEventBus.get()
-                    .with(Command.COMMAND, String::class.java)
-                    .post(
-                            answerCommit.format(
-                                    Command.ANSWER_SUBMIT,
-                                    userId,
-                                    content.base64().replace("[\\s*\t\n\r]".toRegex(), "")
-                            )
+                .with(Command.COMMAND, String::class.java)
+                .post(
+                    answerCommit.format(
+                        Command.ANSWER_SUBMIT,
+                        userId,
+                        content.base64().replace("[\\s*\t\n\r]".toRegex(), "")
                     )
+                )
 
             toast("答案已提交")
             binding.btnCommit.visibility = View.GONE
@@ -235,17 +227,19 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
 
         binding.btnTakePhoto.setOnClickListener {
             RxPermissions(this).request(Manifest.permission.CAMERA)
-                    .subscribe { permission ->
-                        if (permission) {
-                            choosePic()
-                        } else {
-                            toast("您拒绝了拍照权限，无法使用相机")
-                        }
+                .subscribe { permission ->
+                    if (permission) {
+                        choosePic()
+                    } else {
+                        toast("您拒绝了拍照权限，无法使用相机")
                     }
+                }
         }
 
         binding.btnCommitPic.setOnClickListener {
             binding.answerDoodleView.canDoodle(false)
+            binding.btnCommitPic.isEnabled = false// 避免重复点击
+            stopRecord()
             saveAndCommit()
         }
 
@@ -264,16 +258,24 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
 
     private fun getAnswer(name: String): String {
         val answers = ArrayList<CAnswerCommit>()
-        answers.add(CAnswerCommit(1, getImgPath(name)))
+        answers.add(CAnswerCommit(1, getFTPPath(name)))
         return Gson().toJson(answers)
     }
 
-    private fun getImgPath(name: String): String {
+    private fun getVideoAnswer(imgName: String, videoName: String): String {
+        val answers = ArrayList<CAnswerCommit>()
+        answers.add(CAnswerCommit(1, getFTPPath(imgName), getFTPPath(videoName)))
+        return Gson().toJson(answers)
+    }
+
+    private fun getFTPPath(name: String): String {
         val cache = ACache.get(this)
         val ip = cache.getAsString(CacheKey.IP_ADDRESS) ?: return ""
         val date = Date(System.currentTimeMillis())
         val format = SimpleDateFormat("/yyyy/MM/dd/", Locale.CHINA)
-        return "http://$ip:27272/Record/${format.format(date)}$name"
+
+        val httpPort = cache.getAsString(CacheKey.HTTP_PORT) ?: "27272"
+        return "http://$ip:$httpPort/Record/${format.format(date)}$name"
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -289,19 +291,19 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
     private fun choosePic() {
         val imagePicker = RxImagePicker.create(ZhihuImagePicker::class.java)
         val d = imagePicker.openGalleryAsDracula(
-                this,
-                ZhihuConfigurationBuilder(
-                        MimeType.ofImage(), false
-                )
-                        .capture(true)
-                        .maxSelectable(1)
-                        .spanCount(4)
-                        .theme(xiaofu.lib.picture.R.style.Zhihu_Dracula)
-                        .build()
+            this,
+            ZhihuConfigurationBuilder(
+                MimeType.ofImage(), false
+            )
+                .capture(true)
+                .maxSelectable(1)
+                .spanCount(4)
+                .theme(xiaofu.lib.picture.R.style.Zhihu_Dracula)
+                .build()
         )
-                .subscribe {
-                    binding.ivQuestion.loadUrl(this@AnswerActivity, it.uri)
-                }
+            .subscribe {
+                binding.ivQuestion.loadUrl(this@AnswerActivity, it.uri)
+            }
         mDisposablePool.add(d)
     }
 
@@ -313,38 +315,59 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
         val cache = ACache.get(this)
         val ip = cache.getAsString(CacheKey.IP_ADDRESS) ?: return
         val fileName = filePath.substring(filePath.lastIndexOf("/"))
-        FTPUploadRequest(applicationContext, ip, 17171)
-                .setUsernameAndPassword("ftpd", "password")
-                .addFileToUpload(filePath, "/smartClass/Record/" + getFtpRemotePath() + fileName)
-                .setMaxRetries(2)
-                .setDelegate(object : UploadStatusDelegate {
-                    override fun onCancelled(context: Context?, uploadInfo: UploadInfo?) {
-                        Log.w("ftp", "ftp 取消")
-                    }
+        val ftpPortS: String? = cache.getAsString(CacheKey.FTP_PORT)
+        var ftpPort = 17171
+        ftpPortS?.let {
+            try {
+                ftpPort = Integer.parseInt(it)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
 
-                    override fun onProgress(context: Context?, uploadInfo: UploadInfo?) {
-                        Log.w("ftp", "ftp onProgress")
-                    }
+        val progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("答案上传中，请稍后...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+        FTPUploadRequest(applicationContext, ip, ftpPort)
+            .setUsernameAndPassword("ftpd", "password")
+            .addFileToUpload(filePath, "/smartClass/Record/" + getFtpRemotePath() + fileName)
+            .setMaxRetries(2)
+            .setDelegate(object : UploadStatusDelegate {
+                override fun onCancelled(context: Context?, uploadInfo: UploadInfo?) {
+                    Log.w("ftp", "ftp 取消")
+                    toast("答案上传被取消，请重新提交")
+                    binding.btnCommitPic.isEnabled = true
+                    progressDialog.dismiss()
+                }
 
-                    override fun onError(
-                            context: Context?,
-                            uploadInfo: UploadInfo?,
-                            serverResponse: ServerResponse?,
-                            exception: java.lang.Exception?
-                    ) {
-                        Log.w("ftp", "ftp 错误:" + exception?.message)
-                    }
+                override fun onProgress(context: Context?, uploadInfo: UploadInfo?) {
+                    Log.w("ftp", "ftp onProgress")
+                }
 
-                    override fun onCompleted(
-                            context: Context?,
-                            uploadInfo: UploadInfo?,
-                            serverResponse: ServerResponse?
-                    ) {
-                        listener.onComplete()
-                    }
+                override fun onError(
+                    context: Context?,
+                    uploadInfo: UploadInfo?,
+                    serverResponse: ServerResponse?,
+                    exception: java.lang.Exception?
+                ) {
+                    Log.w("ftp", "ftp 错误:" + exception?.message)
+                    toast("答案上传失败，请重新提交")
+                    binding.btnCommitPic.isEnabled = true
+                    progressDialog.dismiss()
+                }
 
-                })
-                .startUpload()
+                override fun onCompleted(
+                    context: Context?,
+                    uploadInfo: UploadInfo?,
+                    serverResponse: ServerResponse?
+                ) {
+                    listener.onComplete()
+                    progressDialog.dismiss()
+                }
+
+            })
+            .startUpload()
     }
 
     private fun getFtpRemotePath(): String {
@@ -368,7 +391,6 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
     /**
      * 弹窗方式弹出画笔设置
      */
-
     private fun initPopPaint() {
         popPaintOptions = LayoutInflater.from(this).inflate(R.layout.pop_paint_options, null)
         val rgPaintColor: RadioGroup = popPaintOptions.findViewById(R.id.rg_paint_color)
@@ -414,35 +436,165 @@ class AnswerActivity : BaseBindActivity<ActivityAnswerBinding>() {
             initPopPaint()
         }
         val pop = CustomPopWindow.PopupWindowBuilder(this)
-                .setView(popPaintOptions)
-                .setOutsideTouchable(true)
-                .create()
-                .showAtLocation(binding.btnChoosePaint, Gravity.CENTER, 0, 100)
+            .setView(popPaintOptions)
+            .setOutsideTouchable(true)
+            .create()
+            .showAtLocation(binding.btnChoosePaint, Gravity.CENTER, 0, 100)
     }
 
     private fun saveAndCommit() {
+        ftpSuccessCount = 0
+
         val mBitmap = Bitmap.createBitmap(binding.bgGroup.width, binding.bgGroup.height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(mBitmap)
         binding.bgGroup.draw(canvas)
-
         val currentPath = binding.answerDoodleView.saveBitmap(binding.answerDoodleView, mBitmap)
         val fileName = currentPath.substring(currentPath.lastIndexOf("/"))
         ftpUpload(currentPath, object : OnFTPCompleteListener {
             override fun onComplete() {
-                Log.d("xiaofu","答案图片上传成功")
-                LiveEventBus.get()
+                Log.d("ftp", "答案图片上传成功")
+                ftpSuccessCount++
+                if (recordMode) {
+                    notifyServer(fileName)
+                } else {
+                    LiveEventBus.get()
                         .with(Command.COMMAND, String::class.java)
                         .post(
-                                answerCommit.format(
-                                        Command.ANSWER_SUBMIT,
-                                        userId,
-                                        getAnswer(fileName).base64().replace("[\\s*\t\n\r]".toRegex(), "")
-                                )
+                            answerCommit.format(
+                                Command.ANSWER_SUBMIT,
+                                userId,
+                                getAnswer(fileName).base64().replace("[\\s*\t\n\r]".toRegex(), "")
+                            )
                         )
+
+                    binding.llController.visibility = View.GONE
+                    toast("答案已提交")
+                }
             }
         })
 
-        binding.llController.visibility = View.GONE
-        toast("答案已提交")
+        if (recordMode) {
+            Log.e("xiaofu","---主观题>  录像地址：$mRecordMP4Path")
+            ftpUpload(mRecordMP4Path, object : OnFTPCompleteListener {
+                override fun onComplete() {
+                    ftpSuccessCount++
+                    notifyServer(fileName)
+                }
+            })
+        }
+
+
     }
+
+    private var ftpSuccessCount = 0
+    private fun notifyServer(imgName: String) {
+        if (ftpSuccessCount == 2) {
+            val videoName = mRecordMP4Path.substring(mRecordMP4Path.lastIndexOf("/"))
+            LiveEventBus.get()
+                .with(Command.COMMAND, String::class.java)
+                .post(
+                    answerCommit.format(
+                        Command.ANSWER_SUBMIT,
+                        userId,
+                        getVideoAnswer(imgName, videoName).base64().replace("[\\s*\t\n\r]".toRegex(), "")
+                    )
+                )
+
+            binding.llController.visibility = View.GONE
+            toast("答案已提交")
+        }
+    }
+
+    /**
+     * 录屏
+     */
+    private var recordMode = false
+    private lateinit var mProjectionManager: MediaProjectionManager
+    private lateinit var sMediaProjection: MediaProjection
+    private lateinit var mVirtualDisplay: VirtualDisplay
+    private val mediaRecorder by lazy { MediaRecorder() }
+    private val requestScreenShortPermission = 300
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK
+            && requestCode == requestScreenShortPermission
+            && data != null
+        ) {
+            sMediaProjection = mProjectionManager.getMediaProjection(resultCode, data)
+            sMediaProjection.registerCallback(object : MediaProjection.Callback() {}, null)
+            startRecord()
+        }
+    }
+
+    private fun requestRecord() {
+        mProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        startActivityForResult(mProjectionManager.createScreenCaptureIntent(), requestScreenShortPermission)
+    }
+
+    private fun initRecorder() {
+        val metrics = resources.displayMetrics
+        mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE)
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+        mediaRecorder.setOutputFile(mRecordMP4Path)
+        mediaRecorder.setVideoSize(metrics.widthPixels, metrics.heightPixels)
+        mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264)
+//        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC)// 需要音频权限，不设也挺好，节约空间
+//        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+        mediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024)
+        mediaRecorder.setVideoFrameRate(15)
+        try {
+            mediaRecorder.prepare()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun startRecord() {
+        if (!::sMediaProjection.isInitialized) return
+
+        Log.e("xiaofu","---主观题>")
+        recordMode = true
+        initRecorder()
+
+        val metrics = resources.displayMetrics
+        mVirtualDisplay = sMediaProjection.createVirtualDisplay(
+            "screen_short" + System.currentTimeMillis(),
+            metrics.widthPixels,
+            metrics.heightPixels,
+            metrics.densityDpi,
+            DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
+            mediaRecorder.surface,
+            null,
+            null
+        )
+
+        mediaRecorder.start()
+    }
+
+    private fun stopRecord() {
+        if (recordMode) {
+            mediaRecorder.stop()
+            mediaRecorder.reset()
+            if (::mVirtualDisplay.isInitialized) {
+                mVirtualDisplay.release()
+            }
+            if (::sMediaProjection.isInitialized) {
+                sMediaProjection.stop()
+            }
+        }
+    }
+
+    private var mRecordMP4Path = ""
+    private fun initMyRecordPath() {
+        val file = File(getRecordPath())
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                return
+            }
+        }
+        mRecordMP4Path = getRecordPath() + UUID.randomUUID().toString() + ".mp4"
+    }
+
 }

@@ -12,4 +12,10 @@ object CacheKey {
     const val KEY_NICK = "KEY_NICK"// 用户昵称
 
     const val TOTAL_SUB = "TOTAL_SUB"
+
+    // 全局配置
+    const val FTP_PORT = "FTP_PORT"
+    const val HTTP_PORT = "HTTP_PORT"
+    const val REMOTE_URL = "REMOTE_URL"
+
 }

@@ -26,6 +26,10 @@ object KTool {
         return Environment.getExternalStorageDirectory().absolutePath + "/diandian/receive/"
     }
 
+    fun getRecordPath(): String {
+        return Environment.getExternalStorageDirectory().absolutePath + "/diandian/record/"
+    }
+
 
     fun getByte(): ByteArray {
         val cmdRequest = String.format("%-16s", Command.SCREENS_REQUEST).toByteArray()

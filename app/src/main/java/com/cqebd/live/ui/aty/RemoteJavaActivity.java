@@ -133,7 +133,8 @@ public class RemoteJavaActivity extends BaseBindActivity<ActivityRemoteBinding> 
             remoteControl(binding.ivRemote);
             tcpConnect();
         } else {
-            newUdpConnect();
+            tcpConnect();
+//            newUdpConnect();
 //            udpConnect();
         }
 
@@ -177,13 +178,16 @@ public class RemoteJavaActivity extends BaseBindActivity<ActivityRemoteBinding> 
         iv.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                currentPressTime = System.currentTimeMillis();// 当前时间
+
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_DOWN:
                         xCord = screenshotImageViewX - (int) event.getY();
                         yCord = (int) event.getX();
                         initX = xCord;
                         initY = yCord;
-                        sendCommand(Command.MOUSE_CLICK, (float) xCord / screenshotImageViewX, (float) yCord / screenshotImageViewY);
+//                        sendCommand(Command.MOUSE_CLICK, (float) xCord / screenshotImageViewX, (float) yCord / screenshotImageViewY);
+                        sendCommand(Command.MOUSE_DOWN, (float) xCord / screenshotImageViewX, (float) yCord / screenshotImageViewY);
                         mouseMoved = false;
                         break;
                     case MotionEvent.ACTION_MOVE:
@@ -197,11 +201,18 @@ public class RemoteJavaActivity extends BaseBindActivity<ActivityRemoteBinding> 
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        currentPressTime = System.currentTimeMillis();
-                        long interval = currentPressTime - lastPressTime;
-                        if (interval <= 1400 && !mouseMoved) {
-                            sendCommand(Command.MOUSE_DOUBLE, (float) initX / screenshotImageViewX, (float) initY / screenshotImageViewY);
+//                        currentPressTime = System.currentTimeMillis();
+//                        long interval = currentPressTime - lastPressTime;
+//                        if (interval <= 1400 && !mouseMoved) {
+//                            sendCommand(Command.MOUSE_DOUBLE, (float) initX / screenshotImageViewX, (float) initY / screenshotImageViewY);
+//                        }
+
+                        if (System.currentTimeMillis() - currentPressTime > 1000) {
+                            sendCommand(Command.MOUSE_UP, (float) initX / screenshotImageViewX, (float) initY / screenshotImageViewY);
+                        } else {
+                            sendCommand(Command.MOUSE_CLICK, (float) initX / screenshotImageViewX, (float) initY / screenshotImageViewY);
                         }
+
                         break;
                 }
                 return true;

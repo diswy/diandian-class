@@ -22,6 +22,7 @@ object Command {
     const val EAGER_RESULT = "EAGER_RESULT"// 点赞结果
 
     const val PRAISE = "PRAISE"// 累计点赞
+    const val SYSTEM_CONFIG = "SYSTEM_CONFIG"// 全局配置
 
     const val SCREENS_REQUEST = "SCREENS_REQUEST"// 请求远程桌面
     const val SCREENS_RESPONSE = "SCREEN_RESPONSE"// 收到远程桌面
@@ -33,6 +34,8 @@ object Command {
     const val MOUSE_CLICK = "MOUSE_CLICK"// 远程控制 单点
     const val MOUSE_MOVE = "MOUSE_MOVE"// 远程控制 单点
     const val MOUSE_DOUBLE = "MOUSE_DOUBLE"// 远程控制 单点
+    const val MOUSE_UP = "MOUSE_UP"
+    const val MOUSE_DOWN = "MOUSE_DOWN"
 
     const val ANSWER_PIC = "ANSWER_PIC"// 远程控制 发送图片
 

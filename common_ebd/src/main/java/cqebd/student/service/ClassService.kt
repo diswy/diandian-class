@@ -59,7 +59,7 @@ class ClassService : Service() {
                 updateUserInfo(it)
             }
             Command.ANSWER_SUBMIT, Command.EAGER_PRAISE,
-            Command.MOUSE_CLICK, Command.MOUSE_MOVE,
+            Command.MOUSE_CLICK, Command.MOUSE_MOVE,Command.MOUSE_DOWN,Command.MOUSE_UP,
             Command.MOUSE_DOUBLE -> {
                 send(it)
             }
@@ -234,19 +234,35 @@ class ClassService : Service() {
                 HRA_API.getHRA_API(applicationContext).setDeviceShutDown(applicationContext)
             }
             Command.BROADCAST -> {
-                ARouter.getInstance()
-                        .build("/app/aty/remote_player")
-                        .navigation()
+                if (mCommand[2] == "1") {//TCP
+                    ARouter.getInstance()
+                            .build("/app/aty/remote_java")
+                            .navigation()
+                } else {// player
+                    ARouter.getInstance()
+                            .build("/app/aty/remote_player")
+                            .withString("playUrl",mCommand[3])
+                            .navigation()
+                }
             }
             Command.DEMON_START -> {
                 ARouter.getInstance()
-                        .build("/app/aty/remote_player")
+                        .build("/app/aty/remote_java")
                         .withBoolean("isControl", true)
                         .navigation()
             }
             Command.PRAISE -> {
                 cache.put(CacheKey.TOTAL_SUB, mCommand[3])
                 LiveEventBus.get().with(Command.COMMAND).post(line)
+            }
+            Command.SYSTEM_CONFIG -> {
+                try {
+                    cache.put(CacheKey.FTP_PORT, mCommand[2])
+                    cache.put(CacheKey.HTTP_PORT, mCommand[3])
+                    cache.put(CacheKey.REMOTE_URL, mCommand[4])
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             else -> {
                 Log.e("xiaofu", "转发了消息：$mCommand")
@@ -285,7 +301,16 @@ class ClassService : Service() {
             val cache = ACache.get(this)
             val ip = cache.getAsString(CacheKey.IP_ADDRESS) ?: return
             Log.w("ftp", "进入FTP，文件路径：$filePath")
-            FTPUploadRequest(applicationContext, ip, 17171)
+            val ftpPortS: String? = cache.getAsString(CacheKey.FTP_PORT)
+            var ftpPort = 17171
+            ftpPortS?.let {
+                try {
+                    ftpPort = Integer.parseInt(it)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            FTPUploadRequest(applicationContext, ip, ftpPort)
                     .setUsernameAndPassword("ftpd", "password")
                     .addFileToUpload(filePath, "/smartClass/Record/" + getFtpRemotePath() + name + ".png")
                     .setMaxRetries(2)
