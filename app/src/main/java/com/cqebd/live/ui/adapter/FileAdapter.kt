@@ -8,7 +8,7 @@ import com.cqebd.live.R
 import java.io.File
 
 /**
- *
+ *15923297215
  * Created by @author xiaofu on 2019/7/8.
  */
 class FileAdapter : BaseQuickAdapter<File, BaseViewHolder>(R.layout.student_receive_file) {

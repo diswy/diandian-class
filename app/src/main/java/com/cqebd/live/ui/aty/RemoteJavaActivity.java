@@ -153,7 +153,7 @@ public class RemoteJavaActivity extends BaseBindActivity<ActivityRemoteBinding> 
      * 图片显示用线程
      */
     private void updateScreenshot() {
-        Disposable d = Flowable.interval(100, TimeUnit.MILLISECONDS)
+        Disposable d = Flowable.interval(50, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(aLong -> {
@@ -274,10 +274,44 @@ public class RemoteJavaActivity extends BaseBindActivity<ActivityRemoteBinding> 
             @Override
             public void connectSuccess(@NotNull OutputStream os, @NotNull InputStream is) {
                 try {
+//                    LiveEventBus.get()
+//                            .with(Command.COMMAND, String.class)
+//                            .post(Command.SCREENS_REQUEST);
+
                     os.write(cmd);
                     os.flush();
                     Log.w("远程桌面", "已发送请求远程桌面,准备接收");
                     while (isContinue) {
+                        Log.w("远程桌面", "已发送请求远程桌面,等待接收");
+//                        int cmdRead = is.read(buffer, 0, 32);
+//                        String command = new String(buffer, 0, 16, Charset.forName("UTF-8")).trim();
+//                        int imgPos = ByteTools.bytesArray2IntUntil17to20(buffer);// 图片编号
+//                        int imgSize = ByteTools.bytesArray2IntUntil21to24(buffer);// 图片大小
+//                        int sendTimes = ByteTools.bytesArray2IntUntil25to28(buffer);// 发送次数
+//                        int finalSize = ByteTools.bytesArray2IntUntil29to32(buffer);// 最后一次包大小
+//                        Log.w("远程桌面", String.format(format, command, imgSize, imgPos));// Info
+//
+//                        if (command.equals(Command.SCREENS_RESPONSE)) {
+//                            Log.w("远程桌面", "已发送请求远程桌面,准备接受图");
+//                            int remaining = imgSize;
+//                            int read = 0;
+//                            int offset = 0;
+//                            byte[] imgByteArray = new byte[imgSize];
+//                            while ((read = is.read(imgBuffer, 0, Math.min(imgBuffer.length, remaining))) > 0) {
+//                                System.arraycopy(imgBuffer, 0, imgByteArray, offset, read);
+//                                remaining -= read;
+//                                offset += read;
+//                            }
+//
+//                            if (imgQueue.size() < cacheImgCount) {
+//                                Bitmap bitmap = BitmapFactory.decodeByteArray(imgByteArray, 0, imgSize);
+//                                imgQueue.offer(bitmap);
+//                                bitmap = null;
+//                                Log.w("远程桌面", "---!!!---<<<<<<<<<<<<从服务端接收的图片" + imgQueue.size());
+//                            }
+//                            imgByteArray = null;
+//                        }
+
                         int cmdRead = is.read(buffer, 0, 24);
                         String command = new String(buffer, 0, 16, Charset.forName("UTF-8")).trim();
                         int fileSize = ByteTools.bytesArray2IntUntil17to20(buffer);

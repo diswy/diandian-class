@@ -5,10 +5,10 @@
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
 	<application>
-		<service
-			android:name="cqebd.student.service.ClassService"
-			android:enabled="true"
-			android:exported="false" />
+<!--		<service-->
+<!--			android:name="cqebd.student.service.ClassService"-->
+<!--			android:enabled="true"-->
+<!--			android:exported="false" />-->
 
 		<receiver android:name="cqebd.student.receiver.WifiBroadcastReceiver">
 			<intent-filter>

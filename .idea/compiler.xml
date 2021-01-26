@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="1.7">
+      <module name="diandian-class.app" target="1.8" />
+      <module name="diandian-class.app-teacher" target="1.8" />
+      <module name="diandian-class.common_ebd" target="1.8" />
+      <module name="diandian-class.component_doodle" target="1.8" />
+      <module name="diandian-class.component_picture_selector" target="1.8" />
+      <module name="diandian-class.lib_base" target="1.8" />
+      <module name="net_socket_client" target="1.7" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

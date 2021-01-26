@@ -74,7 +74,7 @@ class FancyDialogFragment : DialogFragment() {
 
     override fun onStart() {
         super.onStart()
-        val window = dialog.window
+        val window = dialog!!.window
         window ?: return
 
         val params = window.attributes
@@ -94,8 +94,8 @@ class FancyDialogFragment : DialogFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        dialog.window?.requestFeature(Window.FEATURE_NO_TITLE)
-        dialog.setCanceledOnTouchOutside(canCancelOutside)
+        dialog!!.window?.requestFeature(Window.FEATURE_NO_TITLE)
+        dialog!!.setCanceledOnTouchOutside(canCancelOutside)
 
         val binding: ViewDataBinding = DataBindingUtil.inflate(inflater, mLayoutRes, container, false)
         mListener?.invoke(this, binding)
@@ -109,8 +109,13 @@ class FancyDialogFragment : DialogFragment() {
         return this
     }
 
-    override fun onDismiss(dialog: DialogInterface?) {
+    override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         onDismissListener?.invoke()
     }
+
+//    override fun onDismiss(dialog: DialogInterface?) {
+//        super.onDismiss(dialog)
+//        onDismissListener?.invoke()
+//    }
 }

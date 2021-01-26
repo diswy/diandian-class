@@ -56,6 +56,28 @@
 			app:layout_constraintTop_toBottomOf="@id/stu_index_datetime"
 			tools:text="2月22日 周五下午" />
 
+
+
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content">
+
+			<Button
+				android:id="@+id/test_stop_service"
+				android:textAllCaps="false"
+				android:text="停止service"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"/>
+
+			<Button
+				android:id="@+id/test_start_service"
+				android:text="重启service"
+				android:textAllCaps="false"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"/>
+
+		</LinearLayout>
+
 		<ImageView
 			android:id="@+id/stu_index_info_bg"
 			android:layout_width="wrap_content"

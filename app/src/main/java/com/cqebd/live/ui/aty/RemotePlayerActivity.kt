@@ -25,8 +25,13 @@ import java.util.*
 
 @Route(path = "/app/aty/remote_player")
 class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
-    private var source = "udp://239.0.0.2:5555"
-//    private val source = "rtp://239.0.0.2:5555"
+
+    @Autowired
+    @JvmField
+    var playUrl: String? = null// 后台传输告知播放地址
+
+//    private var source = "udp://239.0.0.2:5555"// UDP播放
+//    private val source = "rtp://239.0.0.2:5555"// RTP播放
 
     private val observer = Observer<String> { s ->
         if (Command.BROADCAST_STOP == s || Command.DEMON_STOP == s) {
@@ -60,11 +65,13 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
     override fun initialize(binding: ActivityRemotePlayerBinding) {
         ARouter.getInstance().inject(this)
 
-        val cache = ACache.get(this)
-        val url:String? = cache.getAsString(CacheKey.REMOTE_URL)
-        if (url != null){
-            source = url
-        }
+        Log.d("xiaofu","播放器地址：$playUrl")
+
+//        val cache = ACache.get(this)
+//        val url: String? = cache.getAsString(CacheKey.REMOTE_URL)
+//        if (url != null) {
+//            source = url
+//        }
 
         LiveEventBus.get().with(Command.COMMAND, String::class.java).observe(this, observer)
 
@@ -80,20 +87,20 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
         wlMedia = WlMedia()
         wlMedia.setPlayModel(WlPlayModel.PLAYMODEL_AUDIO_VIDEO)//声音视频都播放
         wlMedia.setCodecType(WlCodecType.CODEC_MEDIACODEC)//优先使用硬解码
-        wlMedia.mute = WlMute.MUTE_CENTER//立体声
-        wlMedia.volume = 80//80%音量
-        wlMedia.playPitch = 1.0f//正常速度
-        wlMedia.playSpeed = 1.0f//正常音调
-        wlMedia.setRtspTimeOut(30)//网络流超时时间
-//        wlMedia.setShowPcmData(true);//回调返回音频pcm数据
-        wlMedia.setSampleRate(WlSampleRate.RATE_44100)//设置音频采样率为指定值（返回的PCM就是这个采样率）
-        binding.remoteSurface.setWlMedia(wlMedia)//给视频surface设置播放器
-
-        wlMedia.setOnPreparedListener {
-            wlMedia.setVideoScale(WlScaleType.SCALE_FULL_SURFACE)
-            wlMedia.start()
-            Log.d("xiaofu", "这里执行了！")
-        }
+//        wlMedia.mute = WlMute.MUTE_CENTER//立体声
+//        wlMedia.volume = 80//80%音量
+//        wlMedia.playPitch = 1.0f//正常速度
+//        wlMedia.playSpeed = 1.0f//正常音调
+//        wlMedia.setRtspTimeOut(30)//网络流超时时间
+////        wlMedia.setShowPcmData(true);//回调返回音频pcm数据
+//        wlMedia.setSampleRate(WlSampleRate.RATE_44100)//设置音频采样率为指定值（返回的PCM就是这个采样率）
+//        binding.remoteSurface.setWlMedia(wlMedia)//给视频surface设置播放器
+//
+//        wlMedia.setOnPreparedListener {
+//            wlMedia.setVideoScale(WlScaleType.SCALE_FULL_SURFACE)
+//            wlMedia.start()
+//            Log.d("xiaofu", "这里执行了！")
+//        }
 
         wlMedia.setOnLoadListener { load ->
             if (load) {
@@ -125,23 +132,23 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
             }
         })
 
-        binding.remoteSurface.setOnVideoViewListener(object : WlOnVideoViewListener {
-            override fun initSuccess() {
-                wlMedia.setSource(source)
-                wlMedia.prepared()
-            }
+//        binding.remoteSurface.setOnVideoViewListener(object : WlOnVideoViewListener {
+//            override fun initSuccess() {
+//                wlMedia.setSource(playUrl)
+//                wlMedia.prepared()
+//            }
+//
+//            override fun moveSlide(value: Double) {
+//
+//            }
+//
+//            override fun movdFinish(value: Double) {
+//                wlMedia.seek(value.toInt().toDouble())
+//            }
+//        })
 
-            override fun moveSlide(value: Double) {
 
-            }
-
-            override fun movdFinish(value: Double) {
-                wlMedia.seek(value.toInt().toDouble())
-            }
-        })
-
-
-        play(source)
+        play(playUrl)
 //        toast(isControl.toString())
         if (isControl) {
             binding.controllerRemote.setOnTouchListener { v, event ->
@@ -151,7 +158,11 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
                         yCord = event.x.toInt()
                         initX = xCord
                         initY = yCord
-                        sendCommand(Command.MOUSE_CLICK, xCord.toFloat() / screenshotImageViewX, yCord.toFloat() / screenshotImageViewY)
+                        sendCommand(
+                            Command.MOUSE_CLICK,
+                            xCord.toFloat() / screenshotImageViewX,
+                            yCord.toFloat() / screenshotImageViewY
+                        )
                         mouseMoved = false
                     }
                     MotionEvent.ACTION_MOVE -> {
@@ -160,7 +171,11 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
                         if (xCord - initX != 0 && yCord - initY != 0) {
                             initX = xCord
                             initY = yCord
-                            sendCommand(Command.MOUSE_MOVE, xCord.toFloat() / screenshotImageViewX, yCord.toFloat() / screenshotImageViewY)
+                            sendCommand(
+                                Command.MOUSE_MOVE,
+                                xCord.toFloat() / screenshotImageViewX,
+                                yCord.toFloat() / screenshotImageViewY
+                            )
                             mouseMoved = true
                         }
                     }
@@ -168,7 +183,11 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
                         currentPressTime = System.currentTimeMillis()
                         val interval = currentPressTime - lastPressTime
                         if (interval <= 1400 && !mouseMoved) {
-                            sendCommand(Command.MOUSE_DOUBLE, initX.toFloat() / screenshotImageViewX, initY.toFloat() / screenshotImageViewY)
+                            sendCommand(
+                                Command.MOUSE_DOUBLE,
+                                initX.toFloat() / screenshotImageViewX,
+                                initY.toFloat() / screenshotImageViewY
+                            )
                         }
                     }
                 }
@@ -185,11 +204,11 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
 
     private fun sendCommand(command: String, x: Float, y: Float) {
         LiveEventBus.get()
-                .with(Command.COMMAND, String::class.java)
-                .post(String.format(Locale.CHINA, actionFormat, command, userId, x, y))
+            .with(Command.COMMAND, String::class.java)
+            .post(String.format(Locale.CHINA, actionFormat, command, userId, x, y))
     }
 
-    private fun play(url: String) {
+    private fun play(url: String?) {
         wlMedia.setSource(url)
         wlMedia.prepared()
     }
@@ -208,17 +227,17 @@ class RemotePlayerActivity : BaseBindActivity<ActivityRemotePlayerBinding>() {
 
     override fun onPause() {
         super.onPause()
-        wlMedia.pause()
+//        wlMedia.pause()
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
-        wlMedia.onDestroy()
+//        wlMedia.onDestroy()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        wlMedia.onDestroy()
+//        wlMedia.onDestroy()
     }
 
 }

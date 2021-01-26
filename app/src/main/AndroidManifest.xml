@@ -1,23 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.cqebd.live">
+    package="com.cqebd.live"
+    android:sharedUserId="com.cq.ebd.zuoyou">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.SYSTEM_OVERLAY_WINDOW" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
 
     <application
-            android:name="cqebd.student.BaseApp"
-            android:allowBackup="true"
-            android:icon="@mipmap/ic_launcher"
-            android:label="@string/app_name"
-            android:supportsRtl="true"
-            android:theme="@style/AppTheme"
-            android:usesCleartextTraffic="true">
+        android:name="cqebd.student.BaseApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+
+        <service
+            android:name="cqebd.student.service.ClassService"
+            android:enabled="true"
+            android:exported="false" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -26,51 +32,51 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/filepaths"/>
+                android:resource="@xml/filepaths" />
         </provider>
 
 
-        <activity android:name=".ui.aty.RemotePlayerActivity"
-            android:screenOrientation="landscape">
-        </activity>
         <activity
-                android:name=".ui.aty.MyFileActivity"
-                android:screenOrientation="landscape"/>
+            android:name=".ui.aty.RemotePlayerActivity"
+            android:screenOrientation="landscape"></activity>
         <activity
-                android:name=".ui.aty.RemoteJavaActivity"
-                android:screenOrientation="landscape"/>
+            android:name=".ui.aty.MyFileActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".ui.aty.RemoteJavaActivity"
+            android:screenOrientation="landscape" />
 
         <service
-                android:name=".service.FlyScreenService"
-                android:enabled="true"
-                android:exported="false"/>
+            android:name=".service.FlyScreenService"
+            android:enabled="true"
+            android:exported="false" />
 
-        <activity android:name=".ui.aty.RemoteActivity"/>
+        <activity android:name=".ui.aty.RemoteActivity" />
         <activity
-                android:name=".ui.aty.UserInfoActivity"
-                android:screenOrientation="landscape"/>
+            android:name=".ui.aty.UserInfoActivity"
+            android:screenOrientation="landscape" />
         <activity
-                android:name=".ui.aty.AnswerActivity"
-                android:screenOrientation="landscape"/>
+            android:name=".ui.aty.AnswerActivity"
+            android:screenOrientation="landscape" />
         <activity
-                android:name=".ui.QRActivity"
-                android:screenOrientation="landscape"/>
+            android:name=".ui.QRActivity"
+            android:screenOrientation="landscape" />
         <activity
-                android:name=".ui.aty.LockScreenActivity"
-                android:launchMode="singleTop"
-                android:screenOrientation="landscape"/>
+            android:name=".ui.aty.LockScreenActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="landscape" />
         <activity
-                android:name=".ui.RaceHandActivity"
-                android:screenOrientation="landscape"/>
+            android:name=".ui.RaceHandActivity"
+            android:screenOrientation="landscape" />
         <activity
-                android:name=".MainActivity"
-                android:launchMode="singleTask"
-                android:screenOrientation="landscape">
+            android:name=".MainActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="landscape">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>

@@ -202,7 +202,7 @@ abstract class BaseFragment : Fragment(), AnkoLogger {
                     viewDataBinding as DialogSimpleLoadingBinding
                     viewDataBinding.tvMsg.text = msg
                 }
-        loading.show(fragmentManager, "loading...")
+        loading.show(fragmentManager!!, "loading...")
         return loading
     }
 

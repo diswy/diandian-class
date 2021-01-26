@@ -43,10 +43,12 @@ import com.king.zxing.Intents
 import com.liulishuo.filedownloader.BaseDownloadTask
 import com.liulishuo.filedownloader.FileDownloadListener
 import com.liulishuo.filedownloader.FileDownloader
+import com.orhanobut.logger.Logger
 import com.tbruyelle.rxpermissions2.RxPermissions
 import cqebd.student.BaseApp
 import cqebd.student.commandline.CacheKey
 import cqebd.student.commandline.Command
+import cqebd.student.receiver.WifiBroadcastReceiver
 import cqebd.student.service.ClassService
 import cqebd.student.viewmodel.ClassViewModel
 import cqebd.student.vo.MyIntents
@@ -143,7 +145,8 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
         initToolbar()
 
         // 初始化时间
-        viewModel = ViewModelProviders.of(this, BaseApp.instance.factory).get(ClassViewModel::class.java)
+        viewModel =
+            ViewModelProviders.of(this, BaseApp.instance.factory).get(ClassViewModel::class.java)
         viewModel.getTime().observe(this, Observer {
             binding.stuIndexDatetime.text = it
         })
@@ -165,6 +168,37 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
             binding.stuIndexInfoGrade.text = "累计获赞:${total}分"
         } else {
             binding.stuIndexInfoGrade.text = "加油，可以获得表扬哦"
+        }
+
+        //-------------------test
+        binding.testStartService.setOnClickListener {
+
+//            val isServiceStarted =
+//                WifiBroadcastReceiver.isServiceRunning(this, "cqebd.student.service.ClassService")
+//            Logger.d("--->>>当前教室服务运行状态 重启：$isServiceStarted")
+//            val i = Intent(this, ClassService::class.java)
+//            i.putExtra("mode", 999)
+//            startService(i)
+//            Logger.d("--->>>当前教室服务运行状态 重启：$isServiceStarted")
+//            if (isServiceStarted) {
+//
+//            }
+        }
+        binding.testStopService.setOnClickListener {
+            val isServiceStarted =
+                WifiBroadcastReceiver.isServiceRunning(this, "cqebd.student.service.ClassService")
+            Logger.d("--->>>当前教室服务运行状态：$isServiceStarted")
+            if (isServiceStarted) {
+                val i = Intent(this, ClassService::class.java)
+                stopService(i)
+
+                val isServiceStarted2 =
+                    WifiBroadcastReceiver.isServiceRunning(
+                        this,
+                        "cqebd.student.service.ClassService"
+                    )
+                Logger.d("--->>>当前教室服务运行状态：$isServiceStarted2")
+            }
         }
     }
 
@@ -339,52 +373,69 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
 
     // 读取本地文件
     private fun readInfoBySD() {
-        val task = RxPermissions(this).request(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        )
-            .subscribe {
-                if (it) {
-                    readUser()
-                } else {
-                    toast("你拒绝了使用权限")
-                }
-            }
-        mDisposablePool.add(task)
+        readUser()
+//        val task = RxPermissions(this).request(
+//            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+//            Manifest.permission.READ_EXTERNAL_STORAGE
+//        )
+//            .subscribe {
+//                if (it) {
+//                    readUser()
+//                } else {
+//                    toast("你拒绝了使用权限")
+//                }
+//            }
+//        mDisposablePool.add(task)
     }
 
     private fun readUser() {
-        val path = Environment.getExternalStorageDirectory().absolutePath.plus("/yunketang/shared/user")
-        val file = File(path)
-        if (file.exists()) {
-            try {
-                val inputStream = FileInputStream(file)
-                val inputReader = InputStreamReader(inputStream, "utf-8")
-                val bufferReader = BufferedReader(inputReader)
-                val strBuilder = StringBuilder()
-                while (bufferReader.readLine().apply {
-                        if (this != null) {
-                            strBuilder.append(this)
-                        }
-                    } != null) {
+        val ctx = createPackageContext(
+            "com.zuoyouxue.student.pad",
+            Context.CONTEXT_IGNORE_SECURITY or Context.CONTEXT_INCLUDE_CODE
+        )
+        val sp = ctx.getSharedPreferences("zyx_preferences", Context.MODE_PRIVATE)
+        val user = sp.getString("zyx_user", "获取失败")
+        cache.put(CacheKey.KEY_USER, user)
+        try {
+            val user: User = Gson().fromJson(user, User::class.java)
+            cache.put(CacheKey.KEY_AVATAR, user.Avatar)
+            cache.put(CacheKey.KEY_NICK, user.Name)
+        } catch (e: Exception) {
 
-                }
-                inputStream.close()
-
-                cache.put(CacheKey.KEY_USER, strBuilder.toString())
-
-                try {
-                    val user: User = Gson().fromJson(strBuilder.toString(), User::class.java)
-                    cache.put(CacheKey.KEY_AVATAR, user.Avatar)
-                    cache.put(CacheKey.KEY_NICK, user.Name)
-                } catch (e: Exception) {
-
-                }
-
-            } catch (e: Exception) {
-                toast("请先打开点点课，进行登陆操作")
-            }
         }
+
+//        val path =
+//            Environment.getExternalStorageDirectory().absolutePath.plus("/yunketang/shared/user")
+//        val file = File(path)
+//        if (file.exists()) {
+//            try {
+//                val inputStream = FileInputStream(file)
+//                val inputReader = InputStreamReader(inputStream, "utf-8")
+//                val bufferReader = BufferedReader(inputReader)
+//                val strBuilder = StringBuilder()
+//                while (bufferReader.readLine().apply {
+//                        if (this != null) {
+//                            strBuilder.append(this)
+//                        }
+//                    } != null) {
+//
+//                }
+//                inputStream.close()
+//
+//                cache.put(CacheKey.KEY_USER, strBuilder.toString())
+//
+//                try {
+//                    val user: User = Gson().fromJson(strBuilder.toString(), User::class.java)
+//                    cache.put(CacheKey.KEY_AVATAR, user.Avatar)
+//                    cache.put(CacheKey.KEY_NICK, user.Name)
+//                } catch (e: Exception) {
+//
+//                }
+//
+//            } catch (e: Exception) {
+//                toast("请先打开点点课，进行登陆操作")
+//            }
+//        }
 
     }
 
@@ -404,8 +455,12 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
 
     private fun screenShort() {
         Log.e("屏幕分享", "准备分享")
-        mProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        startActivityForResult(mProjectionManager.createScreenCaptureIntent(), requestScreenShortPermission)
+        mProjectionManager =
+            getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        startActivityForResult(
+            mProjectionManager.createScreenCaptureIntent(),
+            requestScreenShortPermission
+        )
     }
 
 //    private fun startScreenShort() {
@@ -546,7 +601,7 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
             .subscribeOn(Schedulers.io())
             .observeOn(Schedulers.io())
             .subscribe({
-                val host = "239.0.0.1"
+                val host = "224.0.0.2"
                 val ds = MulticastSocket(8002)
                 ds.soTimeout = 5000
                 val receiveAddress = InetAddress.getByName(host)
@@ -638,7 +693,11 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                             fancyDialog.dismiss()
                         }
 
-                        override fun pending(task: BaseDownloadTask?, soFarBytes: Int, totalBytes: Int) {
+                        override fun pending(
+                            task: BaseDownloadTask?,
+                            soFarBytes: Int,
+                            totalBytes: Int
+                        ) {
                         }
 
                         override fun error(task: BaseDownloadTask?, e: Throwable?) {
@@ -646,7 +705,11 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                             fancyDialog.dismiss()
                         }
 
-                        override fun progress(task: BaseDownloadTask?, soFarBytes: Int, totalBytes: Int) {
+                        override fun progress(
+                            task: BaseDownloadTask?,
+                            soFarBytes: Int,
+                            totalBytes: Int
+                        ) {
                             val current = ((soFarBytes / totalBytes.toFloat()) * 100).toInt()
 
                             Log.e("xiaofu", "total=$totalBytes,sofar=$soFarBytes,比例=$current")
@@ -656,7 +719,11 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
                             fragBinding.tvHintInfo.text = current.toString().plus("%/100%")
                         }
 
-                        override fun paused(task: BaseDownloadTask?, soFarBytes: Int, totalBytes: Int) {
+                        override fun paused(
+                            task: BaseDownloadTask?,
+                            soFarBytes: Int,
+                            totalBytes: Int
+                        ) {
                         }
                     })
                     .start()
@@ -670,7 +737,10 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
             if (Settings.canDrawOverlays(this)) {
                 realShowDoodle()
             } else {
-                val i = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+                val i = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
                 startActivity(i)
             }
         } else {
@@ -842,6 +912,21 @@ class MainActivity : BaseBindActivity<ActivityMainBinding>() {
         Log.d("xiaofu", d)
         Log.d("xiaofu", e.toString())
 
+    }
+
+    /**
+     * @return 0 网络模式 1 局域网模式
+     */
+    private fun getMode(): Int {
+        val cache = ACache.get(this)
+        val mode: String? = cache.getAsString("web-mode")
+        if (mode == null) {// 默认模式
+            cache.put("web-mode", "internet")
+            return 0
+        } else {// 本地模式
+            cache.put("web-mode", "local")
+            return 1
+        }
     }
 
 }

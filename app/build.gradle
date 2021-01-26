@@ -13,7 +13,20 @@ android {
         versionCode 1
         versionName "1.0"
     }
-
+    signingConfigs {
+        debug {
+            storePassword "cqebd0612"
+            keyAlias "cqebd"
+            keyPassword "cqebd0612"
+            storeFile file('../config/cqebd.jks')
+        }
+        release {
+            storePassword "cqebd0612"
+            keyAlias "cqebd"
+            keyPassword "cqebd0612"
+            storeFile file('../config/cqebd.jks')
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -21,6 +34,7 @@ android {
         }
 
         debug {
+            debuggable true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -56,11 +70,11 @@ dependencies {
     implementation project(':common_ebd')
     implementation project(path: ':net_socket_client')
 
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-    implementation 'com.liulishuo.filedownloader:library:1.7.6'
+    implementation 'com.liulishuo.filedownloader:library:1.7.7'
     implementation 'com.github.pinguo-zhouwei:CustomPopwindow:2.1.1'
 
 

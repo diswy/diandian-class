@@ -70,7 +70,9 @@ class BaseApp : Application() {
 
         val isServiceStarted = WifiBroadcastReceiver.isServiceRunning(this, "cqebd.student.service.ClassService")
         if (!isServiceStarted) {
-            startService(Intent(this, ClassService::class.java))
+            val i = Intent(this, ClassService::class.java)
+            i.putExtra("mode", 66)
+            startService(i)
         }
 
         // FTP init

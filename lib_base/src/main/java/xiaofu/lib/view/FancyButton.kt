@@ -13,7 +13,7 @@ import xiaofu.lib.view.drawable.DrawableBuilder
  *
  * Created by @author xiaofu on 2018/12/14.
  */
-class FancyButton @JvmOverloads constructor(context: Context?, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
+class FancyButton @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0)
     : AppCompatButton(context, attrs, defStyleAttr) {
 
     private var mDrawable: Drawable? = null

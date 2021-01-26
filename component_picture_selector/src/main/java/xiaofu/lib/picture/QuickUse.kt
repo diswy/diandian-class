@@ -3,6 +3,7 @@ package xiaofu.lib.picture
 import android.app.Activity
 import android.graphics.Bitmap
 import android.net.Uri
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.qingmei2.rximagepicker.core.RxImagePicker
 import com.qingmei2.rximagepicker_extension.MimeType
@@ -44,7 +45,7 @@ fun Activity.singleImagePicker(frag: Fragment): Disposable? {
             }
 }
 
-fun Activity.singleImagePicker(): Disposable? {
+fun AppCompatActivity.singleImagePicker(): Disposable? {
     val imagePicker = RxImagePicker.create(ZhihuImagePicker::class.java)
     return imagePicker.openGalleryAsDracula(
             this,
