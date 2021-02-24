@@ -13,7 +13,7 @@ object Command {
     const val CONNECT_IP = "CONNECT_IP"
 
     //--------S->T--------
-    const val LOGIN_ROOM = "LOGIN_ROOM"
+    const val LOGIN_ROOM = "SLOGIN_ROOM"
     const val STUDENT_INFO_UPDATE = "STUDENT_INFO_UPDATE"
     const val JSON_CLASS = "JSON_CLASS"
     const val ANSWER_SUBMIT = "ANSWER_SUBMIT"
@@ -41,7 +41,7 @@ object Command {
 
 
     //--------T->S--------
-    const val LOGIN_ROOM_RESULT = "LOGIN_ROOM_RESULT"
+    const val LOGIN_ROOM_RESULT = "SLOGIN_ROOM_RESULT"
     const val ANSWER_START = "ANSWER_START"// 测试
     const val ANSWER_STOP = "ANSWER_STOP"// 测试结束
     const val EAGER_ANSWER_START = "EAGER_ANSWER_START"// 开始抢答

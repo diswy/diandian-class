@@ -107,11 +107,10 @@ class ClassService : Service() {
                     taskDisposable.dispose()
                 }
 
-//                val loginFormat = "%s %d %d %s %s"// 指令、ID、身份证号、名字、头像
-                val loginFormat = "LOGIN_ROOM 1419 07788986986 123 1"// 指令、ID、身份证号、名字、头像
+                val loginFormat = "%s %d %d %s %s %d"// 指令、ID、身份证号、名字、头像、教室编号
                 if (::user.isInitialized) {
-//                    send(loginFormat.format(Command.LOGIN_ROOM, user.ID, 0, user.Name, user.Avatar))
-                    send(loginFormat)
+                    send(loginFormat.format(Command.LOGIN_ROOM, user.ID, 0 ,user.Name, user.Avatar, 1))
+//                    send(loginFormat)
                 }
 
                 ARouter.getInstance()
@@ -304,7 +303,7 @@ class ClassService : Service() {
         mClient.disconnect()// 断开处理
         Log.e("xiaofu", "断开后连接 socket")
 //        val ip = cache.getAsString(CacheKey.IP_ADDRESS)
-        val ip = "192.168.124.26"
+        val ip = "47.96.178.14"
         if (ip != null) {
             Log.e("xiaofu", "连接 socket = $ip")
 //            mClient.setConnectAddress(arrayOf(TcpAddress(ip, 2021)))
